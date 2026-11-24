@@ -511,7 +511,6 @@ function spokenOK(q,heard){const a=wordsOf(heard),b=wordsOf(q.target);
   const need=b.length>=4?b.length-1:b.length;return lcs(a,b).len>=need;}
 function renderSay(card,q,finish){
   const box=el('div','saybox');card.appendChild(box);
-  const heardEl=el('div','heard');heardEl.style.display='none';
   const row=el('div','actions');
   const listen=btn('🔊 Paklausies','',()=>{const s=S.sound;S.sound=true;say(q.say);S.sound=s;});
   const show=btn('👀 Rādīt','small',()=>{show.replaceWith(el('div','fr',q.target+(q.prefix?' …':q.anyColor?' …':'')));});
@@ -520,22 +519,45 @@ function renderSay(card,q,finish){
   if(!SR){
     box.innerHTML='<div class="fb tip">Šajā pārlūkā mikrofona pārbaude nedarbojas (vislabāk — Chrome vai Safari). Pasaki skaļi, tad paklausies pareizo un novērtē sevi pati!</div>';
     row.append(listen,btn('✓ Pateicu pareizi','primary',()=>done(true)),btn('✗ Vēl jātrenē','',()=>done(false)));box.appendChild(row);return;}
+  const ua=navigator.userAgent,isSafari=/Safari/.test(ua)&&!/Chrome|CriOS|Edg|FxiOS/.test(ua);
+  const helpTxt=isSafari?'Safari runu atpazīst tikai tad, ja ieslēgta <b>Diktēšana</b>: Mac — Sistēmas iestatījumi → Tastatūra → Diktēšana; iPad — Iestatījumi → Vispārīgi → Tastatūra → Iespējot diktēšanu. Vislabāk strādā <b>Chrome</b>.'
+    :'Pārbaudi, vai pārlūkam atļauts mikrofons (adreses joslā 🔒 → Mikrofons → Atļaut; Mac — Sistēmas iestatījumi → Privātums un drošība → Mikrofons → Chrome).';
+  const status=el('div','heard');status.style.display='none';
+  const selfRow=el('div','actions');selfRow.style.display='none';
+  selfRow.append(el('span','small muted','Ja mikrofons nesadarbojas — pasaki skaļi, paklausies 🔊 un novērtē pati:'),btn('✓ Pateicu pareizi','primary',()=>{selfRow.remove();done(true);}),btn('✗ Vēl jātrenē','',()=>{selfRow.remove();done(false);}));
+  let rec=null,active=false,best='',evaluated=false,fails=0,timer=null,audioTimer=null;
+  const setStatus=h=>{status.style.display='';status.innerHTML=h;};
+  const reset=()=>{active=false;clearTimeout(timer);clearTimeout(audioTimer);mic.textContent='🎤 Runā vēlreiz';mic.classList.remove('rec');};
+  const evaluate=alts=>{if(evaluated)return;evaluated=true;
+    const hit=alts.find(t=>spokenOK(q,t));
+    if(hit){setStatus(`Dzirdēju: «<b>${esc(hit)}</b>»`);selfRow.remove();done(true);return;}
+    tries++;setStatus(`Dzirdēju: «${esc(alts[0])}». `+(tries<3?'Vēl mēģini! Paklausies 🔊 un atkārto lēnām.':''));
+    if(tries>=3){selfRow.remove();done(false,'Nekas — paklausies un mēģini vēlreiz nākamajā raundā.');}};
+  const noResult=msg=>{fails++;setStatus(msg+(fails>=1?`<br><span class="small">${helpTxt}</span>`:''));selfRow.style.display='';};
   const mic=btn('🎤 Runā','primary',()=>{
-    let rec;try{rec=new SR();}catch(e){heardEl.style.display='';heardEl.textContent='Mikrofons nav pieejams.';return;}
-    rec.lang='fr-FR';rec.interimResults=false;rec.maxAlternatives=5;
-    mic.disabled=true;mic.textContent='🎙️ Klausos… runā!';mic.classList.add('rec');
-    let got=false;
-    rec.onresult=e=>{got=true;const alts=[...e.results[0]].map(x=>x.transcript);const hit=alts.find(t=>spokenOK(q,t));
-      heardEl.style.display='';
-      if(hit){heardEl.innerHTML=`Dzirdēju: «<b>${esc(hit)}</b>»`;done(true);return;}
-      tries++;heardEl.innerHTML=`Dzirdēju: «${esc(alts[0])}». `+(tries<3?'Vēl mēģini! Paklausies 🔊 un atkārto lēnām.':'');
-      if(tries>=3)done(false,'Nekas — paklausies un mēģini vēlreiz nākamajā raundā.');};
-    rec.onerror=e=>{heardEl.style.display='';heardEl.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?'⚠️ Atļauj mikrofonu (pārlūka adreses joslā) un mēģini vēlreiz.':e.error==='no-speech'?'Neko nedzirdēju — runā skaļāk un mēģini vēlreiz.':'Neizdevās noklausīties ('+e.error+'). Mēģini vēlreiz.';};
-    rec.onend=()=>{mic.disabled=false;mic.textContent='🎤 Runā vēlreiz';mic.classList.remove('rec');};
-    try{speechSynthesis.cancel();rec.start();}catch(e){mic.disabled=false;}
+    if(active){try{rec.stop();}catch(e){}return;}
+    try{rec=new SR();}catch(e){noResult('Mikrofons šajā pārlūkā nav pieejams.');return;}
+    rec.lang='fr-FR';rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=5;
+    best='';evaluated=false;active=true;
+    mic.textContent='⏹ Gatavs';mic.classList.add('rec');
+    setStatus('⏳ Ieslēdzu mikrofonu…');
+    rec.onaudiostart=()=>{clearTimeout(audioTimer);setStatus('🎙️ Mikrofons ieslēgts — <b>runā tagad!</b> Kad pabeidz, spied ⏹ Gatavs.');};
+    rec.onspeechstart=()=>setStatus('👂 Dzirdu…');
+    rec.onresult=e=>{const r=e.results[e.results.length-1];const alts=[...r].map(x=>x.transcript);best=alts[0]||best;
+      if(r.isFinal){evaluate(alts);try{rec.stop();}catch(x){}}else setStatus(`👂 Dzirdu: «${esc(best)}»`);};
+    rec.onerror=e=>{const er=e.error;
+      if(er==='not-allowed'||er==='service-not-allowed')noResult('⚠️ Pārlūks neļauj lietot mikrofonu vai runas atpazīšanu.');
+      else if(er==='no-speech')noResult('Neko nedzirdēju — runā skaļāk un tuvāk mikrofonam.');
+      else if(er==='network')noResult('⚠️ Runas atpazīšanai vajag internetu — pārbaudi savienojumu.');
+      else if(er==='audio-capture')noResult('⚠️ Mikrofons nav atrasts.');
+      else if(er!=='aborted')noResult('Neizdevās noklausīties ('+esc(er)+').');};
+    rec.onend=()=>{const was=active;reset();if(!evaluated){if(best)evaluate([best]);else if(was&&status.innerHTML.indexOf('⚠️')<0&&status.innerHTML.indexOf('Neko')<0)noResult('Neko nesadzirdēju.');}};
+    audioTimer=setTimeout(()=>{if(active)setStatus('Mikrofons vēl neieslēdzās…<br><span class="small">'+helpTxt+'</span>');selfRow.style.display='';},4000);
+    timer=setTimeout(()=>{if(active){try{rec.stop();}catch(e){}}},10000);
+    try{speechSynthesis.cancel();rec.start();}catch(e){reset();noResult('Neizdevās ieslēgt mikrofonu.');}
   });
-  row.append(listen,mic,show,btn('Izlaist →','small',()=>done(false)));
-  box.append(row,heardEl);
+  row.append(listen,mic,show,btn('Izlaist →','small',()=>{try{rec&&rec.abort();}catch(e){}selfRow.remove();done(false);}));
+  box.append(row,status,selfRow);
 }
 
 /* --- špikeris --- */
