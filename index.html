@@ -80,7 +80,25 @@ details.lesson li{margin:3px 0}
 .typebox .pre{font-size:22px;font-weight:800}
 .typebox input{font:inherit;font-size:22px;font-weight:700;padding:8px 12px;border-radius:14px;border:3px solid var(--accent2);background:var(--bg);color:var(--ink);min-width:0;flex:1;max-width:320px}
 .typebox input.okk{border-color:var(--ok)}.typebox input.bad{border-color:var(--bad)}
-.accents{display:flex;gap:6px;margin:8px 0}
+.typebox.long input{max-width:none;width:100%;font-size:20px}
+.wok{color:var(--ok);font-weight:800}.wbad{color:var(--bad);font-weight:800;text-decoration:underline wavy}
+.saybox .actions{margin-top:6px}.heard{margin-top:10px;font-size:18px;background:var(--surface2);border-radius:12px;padding:8px 12px}
+.btn.rec{background:var(--bad);border-color:var(--bad);animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.6}}
+section.cheat{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px 16px;margin:12px 0}
+section.cheat h3{margin:0 0 6px;font-size:22px}section.cheat p{margin:6px 0}
+table.ct{width:100%;border-collapse:collapse;margin:8px 0;font-size:17px}table.ct th,table.ct td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+table.ct th{background:var(--surface2)}
+.ctw{overflow-x:auto;margin:8px 0}.ctw table.ct{margin:0}table.ct td:first-child{white-space:nowrap}
+@media (max-width:560px){table.ct th,table.ct td{padding:4px 5px}}
+.mini{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--line);vertical-align:-2px}
+.wrow{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.wbox{display:inline-flex;flex-direction:column;align-items:center;background:var(--surface2);border:2px solid var(--line);border-radius:12px;padding:4px 12px}
+.wbox i{font-size:14px;color:var(--muted);font-style:normal}.wbox.hl{border-color:var(--accent);background:var(--bad-bg)}
+.wbox.gm b{color:var(--m)}.wbox.gf b{color:var(--f)}.wbox.gp b{color:var(--pl)}
+.steps{background:var(--ok-bg);border-radius:14px;padding:8px 14px;margin:8px 0}.steps ol{margin:6px 0;padding-left:22px}
+p.tip{background:var(--surface2);border-radius:12px;padding:6px 12px}
+ul.errs{columns:2;column-gap:20px;padding-left:20px}@media (max-width:560px){ul.errs{columns:1}table.ct{font-size:15px}}
+.accents{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .accents button{font:inherit;font-size:20px;font-weight:800;width:44px;height:40px;border-radius:10px;border:2px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer}
 .line{min-height:56px;border:3px dashed var(--accent2);border-radius:16px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
 .bank{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
@@ -412,13 +430,14 @@ function renderQ(host,q,free,onDone){
       if(i===q.ans){b.classList.add('right');finish(true);}else{b.classList.add('wrong');g.children[q.ans].classList.add('right');finish(false);}};g.appendChild(b);});card.appendChild(g);}
   else if(q.t==='sw'){const g=el('div','swopts');q.swatches.forEach((h,i)=>{const b=el('button','sw');b.style.background=h;b.setAttribute('aria-label','krāsa '+(i+1));b.onclick=()=>{if(answered)return;
       if(i===q.ans){b.classList.add('right');finish(true);}else{b.classList.add('wrong');g.children[q.ans].classList.add('right');finish(false);}};g.appendChild(b);});card.appendChild(g);}
-  else if(q.t==='type'){const box=el('div','typebox');box.appendChild(el('span','pre',q.pre));const inp=el('input');inp.autocomplete='off';inp.autocapitalize='off';inp.spellcheck=false;inp.placeholder='…';box.appendChild(inp);card.appendChild(box);
+  else if(q.t==='say'){renderSay(card,q,finish);}
+  else if(q.t==='type'){const box=el('div','typebox'+(q.long?' long':''));box.appendChild(el('span','pre',q.pre));const inp=el('input');inp.autocomplete='off';inp.autocapitalize='off';inp.spellcheck=false;inp.placeholder=q.long?'Raksti šeit…':'…';box.appendChild(inp);card.appendChild(box);
     const ac=el('div','accents');['é','è','ê','à','â','ç','-',"'"].forEach(ch=>{const b=el('button','',ch);b.onclick=()=>{const p=inp.selectionStart??inp.value.length;inp.value=inp.value.slice(0,p)+ch+inp.value.slice(p);inp.focus();inp.setSelectionRange(p+1,p+1);};ac.appendChild(b);});card.appendChild(ac);
     const go=btn('Pārbaudīt ✓','primary',()=>{if(answered)return;let v=norm(inp.value);if(!v)return;const pre=norm(q.pre);if(v.startsWith(pre+' '))v=v.slice(pre.length+1);
       const a=norm(q.ans);inp.disabled=true;go.remove();
       if(v===a){inp.classList.add('okk');finish(true);}
       else if(noAcc(v)===noAcc(a)){inp.classList.add('okk');finish(true,`⚠️ Uzmanies uz akcentu: pareizi raksta <b>${esc(q.ans)}</b>.`);}
-      else{inp.classList.add('bad');finish(false);}});
+      else{inp.classList.add('bad');finish(false,q.long?diffHTML(inp.value,q.ans):`Tu uzrakstīji: <span class="wbad">${esc(inp.value)}</span>`);}});
     inp.onkeydown=e=>{if(e.key==='Enter')go.click();};card.appendChild(go);setTimeout(()=>inp.focus(),50);}
   else if(q.t==='build'){const line=el('div','line'),bank=el('div','bank');const chosen=[];
     const draw=()=>{line.innerHTML='';if(!chosen.length)line.innerHTML='<span class="muted small" style="padding:0 6px">Spied uz vārdiem pareizā secībā…</span>';
@@ -428,6 +447,180 @@ function renderQ(host,q,free,onDone){
     const go=btn('Pārbaudīt ✓','primary',()=>{if(answered||!chosen.length)return;go.remove();const v=chosen.map(i=>q.bank[i]).join(' ');finish(norm(v)===norm(q.words.join(' ')));});card.appendChild(go);}
   card.appendChild(fb);
   return card;
+}
+
+/* ============ rakstīšana un runāšana ============ */
+const cap1=s=>s[0].toUpperCase()+s.slice(1);
+SK.wr='Rakstu vārdus un teikumus pats';
+SK.say='Runāju franciski';
+Object.assign(G,{
+ wrNoun(){const n=rndNP(SCHOOLIT,.3);const a=`${UN(n)} ${frN(n)}`;return{sk:'wr',kind:'Raksti pats',t:'type',long:1,pic:picOf(n),q:`Uzraksti ar artikulu (un / une / des): <span class="muted small">${lvN(n)}</span>`,pre:'',ans:a,say:a,exp:expN(n)};},
+ wrSent(){const n=rndNP(SCHOOLIT.filter(x=>!x.onlyPl),.4),c=pick(BASIC);const a=n.p?`Ce sont des ${frN(n)} ${colOf(c,n)}.`:`C'est ${UN(n)} ${frN(n)} ${colOf(c,n)}.`;
+   return{sk:'wr',kind:'Uzraksti teikumu',t:'type',long:1,pic:picOf(n,c.h),q:`${LVDEM[lvKey(n)]} ir ${lvAdj(c.lv,lvKey(n))} ${lvN(n)}.`,pre:'',ans:a,say:a,exp:`${n.p?'Daudzskaitlī: <b>Ce sont des</b> …':'<b>C\'est un / une</b> …'} + lieta + krāsa. ${agrExp(n,c)}`};},
+ wrPos(){const n=rndNP(SCHOOLIT,.4),c=pick(BASIC);const a=`${cap1(MON(n))} ${frN(n)} ${EST(n)} ${colOf(c,n)}.`;
+   return{sk:'wr',kind:'Uzraksti teikumu',t:'type',long:1,pic:picOf(n,c.h),q:`${cap1(LVMANS[lvKey(n)])} ${lvN(n)} ir ${lvAdj(c.lv,lvKey(n))}.`,pre:'',ans:a,say:a,exp:`${art(MON(n),n)} — ${glv(n)}. ${n.p?'Daudzskaitlī <b>sont</b>':'Vienskaitlī <b>est</b>'}, krāsa <b>${colOf(c,n)}</b>.`};},
+ wrColorQ(){const n=rndNP(SCHOOLIT,.35),c=pick(BASIC);const q=n.p?`De quelle couleur sont ${LE(n)} ${frN(n)} ?`:`De quelle couleur est ${LE(n)} ${frN(n)} ?`;const a=`${PR(n)} ${EST(n)} ${colOf(c,n)}.`;
+   return{sk:'wr',kind:'Atbildi rakstot',t:'type',long:1,pic:picOf(n,c.h),q,sayQ:q,pre:'',ans:a,say:a,exp:`${art(LE(n),n)} → <b>${PR(n)} ${EST(n)}</b> + krāsa <b>${colOf(c,n)}</b>.`};},
+ wrPlural(){const n=np(pick(SCHOOLIT.filter(x=>!x.onlyPl))),c=pick(BASIC),p=np(n.it,true);const a=`des ${frN(p)} ${colOf(c,p)}`;
+   return{sk:'wr',kind:'Pārveido daudzskaitlī',t:'type',long:1,pic:picOf(p,c.h),q:`<span class="fr">${UN(n)} ${frN(n)} ${colOf(c,n)}</span> → daudzskaitlī:`,pre:'',ans:a,say:a,exp:`un / une → <b>des</b>, lietvārdam <b>-s</b>. ${agrExp(p,c)}`};},
+ wrEmo(){const e=pick(EMO),g=pick(['m','f']);const a=`${g==='m'?'Il':'Elle'} est ${e[g]}.`;
+   return{sk:'wr',kind:'Uzraksti teikumu',t:'type',long:1,pic:emoPic(e,g),q:`${g==='m'?'Viņš':'Viņa'} ir ${g==='m'?e.lm:e.lf}.`,pre:'',ans:a,say:a,exp:`<b>${e.m} / ${e.f}</b> — ${e.lm} / ${e.lf}.`};},
+ wrName(){const [f]=pick(PRON.filter(p=>!['nous','vous'].includes(p[0])));const a=`${cap1(f)} ${APPEL[f]} ${NAMES[f]}.`;
+   return{sk:'wr',kind:'Uzraksti teikumu',t:'type',long:1,q:`${LVSAUC[f]} ${NAMES[f].replace(' et ',' un ')}.`,pre:'',ans:a,say:a,exp:PRON.map(([p])=>`${p} <b>${APPEL[p]}</b>`).join(' · ')};},
+ // runāšana
+ spWord(){const n=rndNP(SCHOOLIT,.25);const t=`${UN(n)} ${frN(n)}`;return{sk:'say',t:'say',kind:'Pasaki franciski',pic:picOf(n),q:`Kas tas ir? Pasaki ar artikulu. <span class="muted small">(${lvN(n)})</span>`,target:t,say:t,exp:expN(n)};},
+ spColor(){const c=pick(COLORS);return{sk:'say',t:'say',kind:'Pasaki krāsu',sw:c.h,q:`Kāda krāsa? <span class="muted small">(${c.lv})</span>`,target:c.m,say:c.m,exp:`<b>${c.m}</b> — ${c.lv}`};},
+ spSent(){const n=rndNP(SCHOOLIT.filter(x=>!x.onlyPl),.3),c=pick(BASIC);const t=n.p?`Ce sont des ${frN(n)} ${colOf(c,n)}.`:`C'est ${UN(n)} ${frN(n)} ${colOf(c,n)}.`;
+   return{sk:'say',t:'say',kind:'Pasaki teikumu',pic:picOf(n,c.h),q:`${LVDEM[lvKey(n)]} ir ${lvAdj(c.lv,lvKey(n))} ${lvN(n)}.`,target:t,say:t,exp:agrExp(n,c)};},
+ spPos(){const n=rndNP(SCHOOLIT,.35),c=pick(BASIC);const t=`${cap1(MON(n))} ${frN(n)} ${EST(n)} ${colOf(c,n)}.`;
+   return{sk:'say',t:'say',kind:'Pasaki teikumu',pic:picOf(n,c.h),q:`${cap1(LVMANS[lvKey(n)])} ${lvN(n)} ir ${lvAdj(c.lv,lvKey(n))}.`,target:t,say:t,exp:`${art(MON(n),n)} — ${glv(n)}.`};},
+ spEmo(){const e=pick(EMO);const t=`Je suis ${e.f}.`;return{sk:'say',t:'say',kind:'Kā tu jūties?',pic:emoPic(e,'f'),q:`Pasaki: es esmu ${e.lf}.`,target:t,say:t,exp:`Meitene saka <b>${e.f}</b>, zēns — <b>${e.m}</b>.`};},
+ spName(){return{sk:'say',t:'say',kind:'Iepazīstini sevi',q:'Pasaki, kā tevi sauc! <span class="muted small">(Mani sauc …)</span>',target:"Je m'appelle",prefix:1,say:"Je m'appelle Léa.",exp:"<b>Je m'appelle</b> + tavs vārds."};},
+ spFav(){return{sk:'say',t:'say',kind:'Atbildi',q:'Quelle est ta couleur préférée ?',sayQ:'Quelle est ta couleur préférée ?',target:"C'est",anyColor:1,say:"C'est bleu.",exp:"<b>C'est</b> + tava mīļākā krāsa, piem. <b>C'est rose.</b>"};},
+ spRepeat(){const s=pick(["Qu'est-ce que c'est ?","C'est un sac à dos gris.","C'est ma règle.","Mes livres sont blancs.","Mon sac est noir.","Mes stylos sont bleus.","Ce sont des règles blanches.","Quelle est ta couleur préférée ?","De quelle couleur est la trousse ?","Elle s'appelle Nadia.","Je suis fatiguée.","C'est une colle marron."]);
+   return{sk:'say',t:'say',kind:'Paklausies un atkārto',q:`<span class="fr">${s}</span>`,sayQ:s,target:s,say:s,exp:'Lasi lēnām, katru vārdu skaidri.'};}
+});
+MODES.wr={name:'Raksti pats',ico:'✍️',sub:'Vārdi un teikumi, ko raksti pati — redzēsi, kurš vārds nav pareizs',gens:['wrNoun','wrSent','wrSent','wrPos','wrColorQ','wrPlural','wrEmo','wrName']};
+MODES.say={name:'Runā franciski!',ico:'🎤',sub:'Pasaki skaļi — spēle klausās un pārbauda izrunu',gens:['spWord','spWord','spColor','spSent','spPos','spEmo','spName','spFav','spRepeat','spRepeat']};
+MODES.mix.gens=Object.keys(G).filter(k=>!k.startsWith('sp'));
+LESSON.wr=`<ul><li>Raksti <b>visu teikumu</b>: lielais burts sākumā, punkts beigās (spēle par tiem nesoda).</li>
+ <li>Akcenti ir svarīgi — zem lodziņa ir pogas <b>é è ê à â ç '</b>.</li>
+ <li>Ja kļūdīsies, sarkanie vārdi parādīs, kur ir kļūda.</li>
+ <li>Neskaidrs? Atver <b>🧠 Špikeri</b>.</li></ul>`;
+LESSON.say=`<ul><li>Spied <b>🔊 Paklausies</b>, tad <b>🎤 Runā</b> un pasaki skaļi un skaidri.</li>
+ <li>Pirmo reizi pārlūks prasīs <b>atļaut mikrofonu</b> — spied „Atļaut”.</li>
+ <li><b>Izrunas likumi:</b> pēdējo līdzskani parasti neizrunā (stylo, crayon, gris [grī]) · <b>-e</b> beigās neizrunā, bet tad iepriekšējais burts skan: vert [vēr] → verte [vert], grise [grīz] · <b>ou</b> = u (rouge, trousse) · <b>oi</b> = ua (noir) · <b>eau</b> = o (tableau) · <b>ch</b> = š (chaise, blanche) · <b>ai</b> = e (taille) · <b>c'est</b> = [se] · <b>u</b> = ü (tu) · <b>on, an</b> — caur degunu (crayon, blanc).</li></ul>`;
+
+/* --- vārdu salīdzināšana --- */
+const wordsOf=s=>noAcc(norm(s)).split(/[\s]+/).filter(Boolean);
+function lcs(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
+  const ia=new Set(),ib=new Set();let i=0,j=0;while(i<m&&j<n){if(a[i]===b[j]){ia.add(i);ib.add(j);i++;j++;}else if(d[i+1][j]>=d[i][j+1])i++;else j++;}
+  return{len:d[0][0],ia,ib};}
+function diffHTML(user,target){const ur=norm(user).split(' ').filter(Boolean),a=wordsOf(user),b=wordsOf(target),r=lcs(a,b);
+  const tr=norm(target).split(' ');
+  return `Tu uzrakstīji: ${ur.map((w,i)=>`<span class="${r.ia.has(i)?'wok':'wbad'}">${esc(w)}</span>`).join(' ')}`+
+   (b.some((w,j)=>!r.ib.has(j))?`<br>Trūka vai bija citādi: ${tr.filter((w,j)=>!r.ib.has(j)).map(w=>`<b>${esc(w)}</b>`).join(', ')}`:'');}
+
+/* --- runāšanas uzdevums --- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const ALLCOL=new Set(COLORS.flatMap(c=>[c.m,c.f].map(x=>noAcc(x))).concat(COLORS.flatMap(c=>c.m.split(' '))));
+function spokenOK(q,heard){const a=wordsOf(heard),b=wordsOf(q.target);
+  if(q.anyColor)return a.join(' ').startsWith("c'est")&&a.slice(1).some(w=>ALLCOL.has(w));
+  if(q.prefix)return a.join(' ').startsWith(b.join(' '));
+  const need=b.length>=4?b.length-1:b.length;return lcs(a,b).len>=need;}
+function renderSay(card,q,finish){
+  const box=el('div','saybox');card.appendChild(box);
+  const heardEl=el('div','heard');heardEl.style.display='none';
+  const row=el('div','actions');
+  const listen=btn('🔊 Paklausies','',()=>{const s=S.sound;S.sound=true;say(q.say);S.sound=s;});
+  const show=btn('👀 Rādīt','small',()=>{show.replaceWith(el('div','fr',q.target+(q.prefix?' …':q.anyColor?' …':'')));});
+  let tries=0;
+  const done=(ok,note)=>{row.remove();finish(ok,note);};
+  if(!SR){
+    box.innerHTML='<div class="fb tip">Šajā pārlūkā mikrofona pārbaude nedarbojas (vislabāk — Chrome vai Safari). Pasaki skaļi, tad paklausies pareizo un novērtē sevi pati!</div>';
+    row.append(listen,btn('✓ Pateicu pareizi','primary',()=>done(true)),btn('✗ Vēl jātrenē','',()=>done(false)));box.appendChild(row);return;}
+  const mic=btn('🎤 Runā','primary',()=>{
+    let rec;try{rec=new SR();}catch(e){heardEl.style.display='';heardEl.textContent='Mikrofons nav pieejams.';return;}
+    rec.lang='fr-FR';rec.interimResults=false;rec.maxAlternatives=5;
+    mic.disabled=true;mic.textContent='🎙️ Klausos… runā!';mic.classList.add('rec');
+    let got=false;
+    rec.onresult=e=>{got=true;const alts=[...e.results[0]].map(x=>x.transcript);const hit=alts.find(t=>spokenOK(q,t));
+      heardEl.style.display='';
+      if(hit){heardEl.innerHTML=`Dzirdēju: «<b>${esc(hit)}</b>»`;done(true);return;}
+      tries++;heardEl.innerHTML=`Dzirdēju: «${esc(alts[0])}». `+(tries<3?'Vēl mēģini! Paklausies 🔊 un atkārto lēnām.':'');
+      if(tries>=3)done(false,'Nekas — paklausies un mēģini vēlreiz nākamajā raundā.');};
+    rec.onerror=e=>{heardEl.style.display='';heardEl.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?'⚠️ Atļauj mikrofonu (pārlūka adreses joslā) un mēģini vēlreiz.':e.error==='no-speech'?'Neko nedzirdēju — runā skaļāk un mēģini vēlreiz.':'Neizdevās noklausīties ('+e.error+'). Mēģini vēlreiz.';};
+    rec.onend=()=>{mic.disabled=false;mic.textContent='🎤 Runā vēlreiz';mic.classList.remove('rec');};
+    try{speechSynthesis.cancel();rec.start();}catch(e){mic.disabled=false;}
+  });
+  row.append(listen,mic,show,btn('Izlaist →','small',()=>done(false)));
+  box.append(row,heardEl);
+}
+
+/* --- špikeris --- */
+function viewCheat(back){
+  clear();topbar('🧠 Špikeris — viss par À l\'école',back);
+  const dot=h=>`<span class="mini" style="background:${h}"></span>`;
+  const row=(c)=>{const k=n=>colOf(c,n);const m=np(IT.crayon),f=np(IT.gomme),mp=np(IT.crayon,true),fp=np(IT.gomme,true);
+    return `<tr><td>${dot(c.h)} ${c.lv}</td><td class="gm">${k(m)}</td><td class="gf">${k(f)}</td><td class="gm">${k(mp)}</td><td class="gf">${k(fp)}</td></tr>`;};
+  const sec=(t,h)=>{const d=el('section','cheat');d.innerHTML=`<h3>${t}</h3>${h}`;main.appendChild(d);};
+  const box=(w,lv,cls)=>`<span class="wbox ${cls||''}"><b>${w}</b><i>${lv}</i></span>`;
+
+  sec('1. Katram vārdam ir dzimte',`
+  <p>Franču valodā katra lieta ir vai nu <span class="gm">vīriešu</span>, vai <span class="gf">sieviešu</span> dzimtē. Dzimti <b>nevar uzminēt</b> — tā jāiemācās kopā ar vārdu. Un tā <b>bieži nesakrīt</b> ar latviešu valodu: <i>soma</i> latviski ir sieviešu dzimtē, bet <span class="gm">un sac</span> — vīriešu.</p>
+  <div class="ctw"><table class="ct"><tr><th></th><th class="gm">vīriešu dz.</th><th class="gf">sieviešu dz.</th><th class="gp">daudzskaitlis</th></tr>
+  <tr><td>viens, kāds</td><td class="gm">un sac</td><td class="gf">une trousse</td><td class="gp">des sacs, des trousses</td></tr>
+  <tr><td>tas, tā (konkrēts)</td><td class="gm">le sac</td><td class="gf">la trousse</td><td class="gp">les sacs, les trousses</td></tr>
+  <tr><td>mans, mana</td><td class="gm">mon sac</td><td class="gf">ma trousse</td><td class="gp">mes sacs, mes trousses</td></tr>
+  <tr><td>viņš / viņa (tas / tā)</td><td class="gm">il</td><td class="gf">elle</td><td class="gp">ils / elles</td></tr></table></div>
+  <p class="tip">💡 Ja zini <b>un</b> vai <b>une</b>, tad zini arī visu pārējo tabulas kolonnu! un → le → mon → il. une → la → ma → elle.</p>
+  <p><span class="gm"><b>un:</b> sac, sac à dos, livre, cahier, crayon, stylo, feutre, taille-crayon · le tableau, le tableau interactif</span><br>
+  <span class="gf"><b>une:</b> trousse, gomme, règle, colle · la classe, la table, la chaise, la corbeille</span><br>
+  <span class="gp"><b>des:</b> ciseaux (šķēres ir tikai daudzskaitlī — tāpat kā latviski)</span></p>`);
+
+  sec('2. Daudzskaitlis',`
+  <p>Lietvārdam pieliek <b>-s</b>: un sac → des sac<b>s</b>, une règle → des règle<b>s</b>. Šo <b>-s neizrunā</b> — dzirdi daudzskaitli tikai pēc <b>des / les / mes</b>!</p>
+  <p>Izņēmums: un tableau → des tableau<b>x</b>.</p>`);
+
+  sec('3. Krāsa nāk AIZ lietas',`
+  <p>Latviski krāsu sakām pirms lietas, franciski — <b>pēc</b>:</p>
+  <div class="wrow">${box('un','viens')}${box('crayon','zīmulis')}${box('bleu','zils','hl')}</div>
+  <div class="wrow">${box('une','viena')}${box('gomme','dzēšgumija')}${box('bleue','zila','hl')}</div>
+  <p>❌ <s>un bleu crayon</s> &nbsp; ✅ <b>un crayon bleu</b></p>`);
+
+  sec('4. Kad krāsa mainās? (lokās)',`
+  <p>Krāsa „pielāgojas” lietai — tāpat kā latviski: <i>zil<b>s</b> zīmulis</i>, bet <i>zil<b>a</b> dzēšgumija</i>. Franciski krāsai ir līdz <b>4 formām</b>:</p>
+  <div class="ctw"><table class="ct"><tr><th>krāsa</th><th class="gm">un crayon</th><th class="gf">une gomme</th><th class="gm">des crayons</th><th class="gf">des gommes</th></tr>
+  ${['bleu','vert','noir','gris','blanc','violet','rouge','jaune','rose','beige','orange','marron','bleu ciel'].map(m=>row(CL[m])).join('')}</table></div>
+  <div class="steps"><b>Kā izlemt — 3 jautājumi:</b>
+  <ol><li><b>Vai krāsa ir orange, marron vai no diviem vārdiem</b> (bleu ciel, rouge foncé, vert clair)? → <b>nekad nemaini!</b> Gatavs.</li>
+  <li><b>Vai lieta ir sieviešu dzimtē</b> (une, la, ma)? → pieliec <b>-e</b>. Ja krāsa jau beidzas ar -e (rouge, jaune, rose, beige) — nekas nav jāpieliek.</li>
+  <li><b>Vai ir daudzskaitlis</b> (des, les, mes)? → pieliec <b>-s</b>. Ja jau beidzas ar -s (gris) — nekas nav jāpieliek.</li></ol>
+  <b>Piemērs:</b> une gomme ___ (zila) → gomme ir <span class="gf">une</span> → bleu + <b>e</b> = <b>bleue</b>.<br>
+  <b>Piemērs:</b> des règles ___ (baltas) → <span class="gf">une</span> règle + daudzskaitlis → blanc → blanche → <b>blanches</b>.</div>
+  <p>⚠️ Īpašie: blanc → <b>blanche</b> · violet → <b>violette</b> (divi t).</p>
+  <p>🔊 Dzirdi atšķirību: vert [vēr] → verte [vert], gris [grī] → grise [grīz], blanc [blā] → blanche [blāš]. Bet bleu / bleue un noir / noire skan vienādi — atšķirība tikai rakstot!</p>`);
+
+  sec('5. Teikumi — ko katrs vārds nozīmē',`
+  <div class="ctw"><table class="ct"><tr><th>Franciski</th><th>Vārds pa vārdam</th><th>Latviski</th></tr>
+  <tr><td><b>Qu'est-ce que c'est ?</b></td><td>kas — ir — tas</td><td>Kas tas ir?</td></tr>
+  <tr><td><b>C'est</b> un crayon bleu.</td><td>c' (= ce, tas) + est (ir)</td><td>Tas ir zils zīmulis.</td></tr>
+  <tr><td><b>Ce sont</b> des sacs blancs.</td><td>ce (tie) + sont (ir, daudzsk.)</td><td>Tās ir baltas somas.</td></tr>
+  <tr><td><b>De quelle couleur est</b> la trousse ?</td><td>kādā — krāsā — ir — penālis</td><td>Kādā krāsā ir penālis?</td></tr>
+  <tr><td><b>Elle est</b> verte.</td><td>viņa/tā + ir</td><td>Tas ir zaļš.</td></tr>
+  <tr><td><b>Quelle est ta couleur préférée ?</b></td><td>kāda — ir — tava — krāsa — mīļākā</td><td>Kāda ir tava mīļākā krāsa?</td></tr>
+  <tr><td><b>C'est</b> bleu.</td><td>tas ir zils</td><td>Zilā.</td></tr>
+  <tr><td><b>Mon sac est</b> noir.</td><td>mana soma ir melna</td><td>Mana soma ir melna.</td></tr>
+  <tr><td><b>Mes stylos sont</b> bleus.</td><td>manas pildspalvas ir zilas</td><td>Manas pildspalvas ir zilas.</td></tr></table></div>
+  <p><b>Kāpēc C'est, nevis Ce est?</b> Ja divi patskaņi saduras (ce + est), <b>e</b> izkrīt un ieliek apostrofu: <b>c'est</b>. Tāpat: je + m'appelle.</p>
+  <p><b>Kāpēc Ce sont, nevis „Ces sont”?</b> <b>Ce</b> nemainās — mainās tikai darbības vārds: est (viens) → <b>sont</b> (vairāki).</p>
+  <p><b>C'est vai Il est?</b><br>➜ <b>C'est un / une</b> + lieta — kad saki, <b>KAS</b> tas ir: <i>C'est une trousse.</i><br>
+  ➜ <b>Il est / Elle est</b> + krāsa — kad saki, <b>KĀDS</b> tas ir: <i>Elle est rose.</i></p>
+  <p><b>Kāpēc par penāli saka „elle” (viņa)?</b> Jo <span class="gf">la trousse</span> ir sieviešu dzimtē. Franciski arī lietas ir „viņš” vai „viņa”: le stylo → <b>il</b>, la gomme → <b>elle</b>, les ciseaux → <b>ils</b>, les règles → <b>elles</b>.</p>`);
+
+  sec('6. Mon, ma, mes — mans, mana, mani',`
+  <p>Skaties uz <b>franču</b> dzimti, ne latviešu! <i>mana soma</i> → <span class="gm"><b>mon</b> sac</span> (jo <i>un</i> sac).</p>
+  <div class="wrow">${box('un livre → mon livre','mana grāmata','gm')}${box('une colle → ma colle','mana līme','gf')}${box('des crayons → mes crayons','mani zīmuļi','gp')}</div>
+  <p>Teikumā: <b>Mon sac est noir.</b> (viens → <b>est</b>) · <b>Mes livres sont blancs.</b> (vairāki → <b>sont</b> un krāsai <b>-s</b>)</p>`);
+
+  sec('7. Emocijas — tāpat kā krāsas',`
+  <p>Meitene saka <b>Je suis content<u>e</u></b>, zēns — <b>Je suis content</b>. Sieviešu dzimtē pieliek <b>-e</b>, bet triste un malade jau beidzas ar -e, tāpēc nemainās.</p>
+  <div class="ctw"><table class="ct"><tr><th></th><th class="gm">zēns / il</th><th class="gf">meitene / elle</th><th>latviski</th></tr>
+  ${EMO.map(e=>`<tr><td>${e.e}</td><td class="gm">${e.m}</td><td class="gf">${e.f}</td><td>${e.lm} / ${e.lf}</td></tr>`).join('')}</table></div>`);
+
+  sec("8. Je m'appelle… — mani sauc",`
+  <div class="ctw"><table class="ct"><tr><th>kurš</th><th>s'appeler</th><th>latviski</th></tr>
+  ${PRON.map(([p,l])=>`<tr><td>${p} <span class="muted">(${l})</span></td><td><b>${p==='je'?'je':p} ${APPEL[p]}</b></td><td>${LVSAUC[p]} …</td></tr>`).join('')}</table></div>
+  <p>⚠️ Divi <b>ll</b>, ja aiz tiem ir izrunāts nekas: appel<b>l</b>e, appel<b>l</b>es, appel<b>l</b>ent. Viens <b>l</b>: nous appel<b>ons</b>, vous appel<b>ez</b>.</p>`);
+
+  sec('9. Biežākās kļūdas',`
+  <ul class="errs"><li>❌ Ces sont → ✅ <b>Ce sont</b></li><li>❌ la cahier, la livre → ✅ <b>le</b> cahier, <b>le</b> livre</li>
+  <li>❌ une crayon → ✅ <b>un</b> crayon</li><li>❌ un bleu crayon → ✅ un crayon <b>bleu</b></li>
+  <li>❌ une gomme bleu → ✅ une gomme <b>bleue</b></li><li>❌ des règles blanc → ✅ des règles <b>blanches</b></li>
+  <li>❌ une colle marronne → ✅ une colle <b>marron</b> (nemainās)</li><li>❌ mes crayon → ✅ mes crayon<b>s</b></li>
+  <li>❌ ma sac → ✅ <b>mon</b> sac</li><li>❌ vous vous appeler → ✅ vous vous appel<b>ez</b></li></ul>`);
+  main.appendChild(btn('Uz sākumu','',home));
 }
 
 /* ============ skati ============ */
@@ -444,6 +637,7 @@ function home(){
   const tiles=el('div','tiles');
   const add=(ico,t,s,f,cls)=>{const b=el('button','tile '+(cls||''));b.innerHTML=`<div class="ico">${ico}</div><div class="t">${t}</div><div class="s">${s}</div>`;b.onclick=f;tiles.appendChild(b);};
   add('📖','Vārdnīca','Visi vārdi ar bildēm un izrunu — mācies vispirms!',viewDict);
+  add('🧠','Špikeris','Kāpēc tā? Dzimtes, kad krāsa mainās, teikumi vārds pa vārdam, biežākās kļūdas',()=>viewCheat());
   Object.entries(MODES).forEach(([k,m])=>add(m.ico,m.name,m.sub+(S.stats[k]?` · ✓ ${S.stats[k]}`:''),()=>practice(k)));
   add('🔁','Kļūdu labošana',S.mist.length?`${S.mist.length} jautājumi, kuros kļūdījies`:'Kļūdu nav — super!',()=>S.mist.length?practice('mist'):toast('Kļūdu sarakstā nav nekā 🎉'));
   add('📝','Formatīvā darba treniņš','24 jautājumi, bez padomiem — kā stundā. Beigās redzi, kas jau padodas.',viewTest,'test wide');
@@ -452,6 +646,7 @@ function home(){
 
 function viewDict(){
   clear();topbar('Vārdnīca — À l\'école');
+  main.appendChild(btn('🧠 Atvērt špikeri — kāpēc tā?','primary',()=>viewCheat(viewDict)));
   main.appendChild(el('p','muted small','Spied uz kartītes, lai dzirdētu. Zils — vīriešu dzimte (un / le), sarkans — sieviešu dzimte (une / la), violets — daudzskaitlis (des / les).'));
   const sec=(title,list,useLe)=>{main.appendChild(el('h2','',title));const d=el('div','dict');
     list.forEach(it=>{const n=np(it),a=useLe?LE(n):UN(n);const c=el('button','card');c.innerHTML=`<div class="pic">${icon(it.w)}</div><div class="w ${gcls(n)}">${a} ${frN(n)}</div><div class="small ${gcls(n)}">${useLe?UN(n):LE(n)} ${frN(n)}${n.p?'':' · '+MON(n)+' '+it.w}</div><div class="lv">${esc(it.lv)}</div>`;
@@ -487,7 +682,7 @@ function practice(mode){
     host.insertAdjacentHTML('beforeend',`<div class="progress"><span>Jautājums ${i+1} / ${N}</span><span>✓ ${good}</span></div><div class="pbar"><i style="width:${i/N*100}%"></i></div>`);
     renderQ(host,q,false,ok=>{
       if(ok){good++;addStars(1);if(isMist)S.mist=S.mist.filter(x=>JSON.stringify(x)!==JSON.stringify(q));}
-      else if(!isMist){S.mist.unshift(q);S.mist=S.mist.slice(0,40);}
+      else if(!isMist&&q.t!=='say'){S.mist.unshift(q);S.mist=S.mist.slice(0,40);}
       else{S.mist=S.mist.filter(x=>JSON.stringify(x)!==JSON.stringify(q));S.mist.push(q);}
       if(!isMist&&ok){S.stats[mode]=(S.stats[mode]||0)+1;}
       save();
@@ -507,11 +702,11 @@ function practice(mode){
 
 function viewTest(){
   clear();topbar('📝 Formatīvā darba treniņš');
-  const plan=['vocPic','vocPic','vocLvFr','vocClass','vocType','colSw','colSw','colLvFr','colFav','genUn','genUn','genLe','genLe','agrPhrase','agrPhrase','agrFill','agrType','posFill','posSent','posBuild','phrCest','phrColor','emoPick','emoLv'];
+  const plan=['vocPic','vocPic','vocLvFr','vocClass','vocType','colSw','colSw','colLvFr','colFav','genUn','genUn','genLe','genLe','agrPhrase','agrFill','agrType','posFill','posSent','wrPos','wrSent','phrCest','phrColor','emoPick','emoLv'];
   // bez atkārtojumiem: katrai lietai/krāsai — cik iespējams dažādi
   const qs=[];const seen=new Set();plan.forEach(g=>{let q,t=0;do{q=G[g]();t++;}while(seen.has(q.q)&&t<20);seen.add(q.q);qs.push(q);});
   const host=el('div');main.appendChild(host);
-  host.innerHTML=`<div class="hero">Kā stundā: <b>24 jautājumi</b> — skolas un klases lietas (5), krāsas (4), un / une / des un le / la / les (4), krāsas saskaņošana (4), mon / ma / mes (3), teikumi (2), emocijas (2). <b>Padomu nav</b>, katram jautājumam viens mēģinājums. Ja kaut ko aizmirsi — vispirms ieskaties <b>📖 Vārdnīcā</b>.</div>`;
+  host.innerHTML=`<div class="hero">Kā stundā: <b>24 jautājumi</b> — skolas un klases lietas (5), krāsas (4), un / une / des un le / la / les (4), krāsas saskaņošana (4), mon / ma / mes (3), teikumi (2), pašam jāuzraksta teikumi (2), emocijas (2). <b>Padomu nav</b>, katram jautājumam viens mēģinājums. Ja kaut ko aizmirsi — vispirms ieskaties <b>📖 Vārdnīcā</b>.</div>`;
   host.appendChild(btn('Sākt ▶','primary',run));
   let i=0;const res=[];
   function run(){
@@ -528,7 +723,7 @@ function viewTest(){
     host.innerHTML='';
     host.insertAdjacentHTML('beforeend',`<div class="done"><div class="big">${pts} / ${max}</div><div><b>${pct}%</b> — ${pct>=90?'Excellent ! Esi gatava formatīvajam darbam! 🎉':pct>=70?'Très bien ! Atkārto to, kas tabulā dzeltens vai sarkans.':'Vēl jātrenējas — izmanto 🔁 Kļūdu labošanu un tēmu spēles.'}</div></div>`);
     const tag=(p,m)=>p===m?'<span class="tag g">Protu</span>':p*2>=m?'<span class="tag y">Protu daļēji</span>':'<span class="tag r">Vēl jāmācās</span>';
-    const rows=Object.entries(SK).map(([k,n],idx)=>{const ix=qs.map((q,j)=>q.sk===k?j:-1).filter(j=>j>=0);const p=ix.filter(j=>res[j]).length;return `<tr><td>${idx+1}. ${n}</td><td class="c">${p}/${ix.length}</td><td>${tag(p,ix.length)}</td></tr>`;}).join('');
+    const rows=Object.entries(SK).filter(([k])=>qs.some(q=>q.sk===k)).map(([k,n],idx)=>{const ix=qs.map((q,j)=>q.sk===k?j:-1).filter(j=>j>=0);const p=ix.filter(j=>res[j]).length;return `<tr><td>${idx+1}. ${n}</td><td class="c">${p}/${ix.length}</td><td>${tag(p,ix.length)}</td></tr>`;}).join('');
     const t=el('table','res');t.innerHTML='<tr><th>Prasme</th><th>Punkti</th><th></th></tr>'+rows;host.appendChild(t);
     const wrong=qs.filter((q,j)=>!res[j]);
     if(wrong.length){host.appendChild(el('p','',`Kļūdas: ${wrong.length}. Tās ieliku 🔁 Kļūdu labošanā — izspēlē tās vēlreiz!`));
@@ -546,6 +741,9 @@ function viewHelp(){
   <li>Kur jāraksta — zem lodziņa ir pogas <b>é è ê à ç</b> burtiem ar akcentiem.</li>
   <li>Par katru pareizu atbildi ⭐, par raundu bez kļūdām vēl +3 ⭐. Par katrām 10 ⭐ tavā <b>🎀 penālī</b> ieceļo jauna lieta!</li>
   <li>Kļūdas saglabājas <b>🔁 Kļūdu labošanā</b> — izspēlē tās, kamēr saraksts tukšs.</li>
+  <li><b>🧠 Špikeris</b> — visi likumi ar paskaidrojumiem: kāpēc tā un kad krāsa mainās.</li>
+  <li><b>✍️ Raksti pats</b> — raksti vārdus un teikumus; sarkanie vārdi parāda kļūdu.</li>
+  <li><b>🎤 Runā franciski!</b> — pasaki skaļi; pirmo reizi atļauj mikrofonu.</li>
   <li><b>📝 Formatīvā darba treniņš</b> — 24 jautājumi bez padomiem; beigās tabula „Protu / Protu daļēji / Vēl jāmācās”.</li>
   <li>🔊 augšā ieslēdz vai izslēdz skaņu.</li></ul>
   <p><b>Padoms:</b> 10 minūtes katru dienu ir labāk nekā stunda vienā vakarā. Bon courage ! 💪</p>`;
