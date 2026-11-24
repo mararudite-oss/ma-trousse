@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma trousse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff7f2; --surface:#ffffff; --surface2:#fdeee6; --ink:#2b2140; --muted:#6f6687; --line:#f0dcd2;
+  --accent:#ef476f; --accent2:#118ab2; --ok:#06966b; --ok-bg:#dcf5ea; --bad:#d62839; --bad-bg:#fde3e6;
+  --m:#1f6fd6; --f:#d6336c; --pl:#8a3fd1; --gold:#e09f00; --card:#fffdf8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17142a; --surface:#221e3a; --surface2:#2c2748; --ink:#f4f0ff; --muted:#aaa2c8; --line:#3a345e;
+    --accent:#ff6b8d; --accent2:#4cc3e8; --ok:#3fd69b; --ok-bg:#163a2c; --bad:#ff6b7a; --bad-bg:#40202a;
+    --m:#6aa8ff; --f:#ff7aa6; --pl:#c18bff; --gold:#ffc53d; --card:#fbf7ef;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17142a; --surface:#221e3a; --surface2:#2c2748; --ink:#f4f0ff; --muted:#aaa2c8; --line:#3a345e;
+  --accent:#ff6b8d; --accent2:#4cc3e8; --ok:#3fd69b; --ok-bg:#163a2c; --bad:#ff6b7a; --bad-bg:#40202a;
+  --m:#6aa8ff; --f:#ff7aa6; --pl:#c18bff; --gold:#ffc53d; --card:#fbf7ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-size:19px;line-height:1.4}
+.wrap{max-width:760px;margin:0 auto;padding:10px 16px 90px}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 12px;border-bottom:2px solid var(--line);margin-bottom:14px}
+header h1{font-size:24px;margin:0;flex:1;cursor:pointer;white-space:nowrap}
+.flag{display:inline-block;width:26px;height:18px;border-radius:3px;background:linear-gradient(90deg,#0055a4 33%,#fff 33% 66%,#ef4135 66%);vertical-align:-2px;margin-right:6px;box-shadow:0 0 0 1px var(--line)}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:2px 12px;font-weight:800;font-size:17px}
+.btn{font:inherit;font-weight:800;border-radius:14px;padding:8px 18px;cursor:pointer;background:var(--surface);color:var(--ink);border:2px solid var(--line)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.small{padding:4px 12px;font-size:16px;border-radius:10px}
+.btn:active{transform:scale(.97)}
+h2{font-size:25px;margin:6px 0 8px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.hero{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.tile{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:14px 16px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.tile:hover{border-color:var(--accent)}
+.tile .ico{font-size:32px;line-height:1.1}
+.tile .t{font-weight:800;font-size:20px}
+.tile .s{color:var(--muted);font-size:15px;line-height:1.3}
+.tile.wide{grid-column:1/-1}
+.tile.test{border-color:var(--accent);border-style:dashed}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.topbar h2{margin:0;flex:1}
+details.lesson{background:var(--surface2);border-radius:14px;padding:8px 14px;margin:6px 0 12px}
+details.lesson summary{cursor:pointer;font-weight:800}
+details.lesson ul{padding-left:22px;margin:6px 0}
+details.lesson li{margin:3px 0}
+.fr{font-weight:800}
+.gm{color:var(--m);font-weight:800}.gf{color:var(--f);font-weight:800}.gp{color:var(--pl);font-weight:800}
+.task{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:14px 16px 16px;margin-bottom:14px}
+.progress{display:flex;justify-content:space-between;font-weight:800;color:var(--muted);font-size:16px;margin-bottom:4px}
+.pbar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden;margin-bottom:10px}
+.pbar>i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.kind{font-weight:800;color:var(--muted);text-transform:uppercase;font-size:13px;letter-spacing:.07em}
+.prompt{font-size:24px;font-weight:800;margin:4px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.say{font:inherit;border:2px solid var(--line);background:var(--surface2);border-radius:999px;width:42px;height:42px;cursor:pointer;font-size:19px;flex:none}
+.pic{width:150px;height:150px;margin:4px auto 10px;background:var(--card);border-radius:22px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.pic svg{width:120px;height:120px}
+.pic.two{width:190px}.pic.two svg{width:84px;height:84px;margin:0 -4px}
+.swatch-big{width:120px;height:120px;border-radius:50%;margin:6px auto 12px;border:4px solid var(--line);box-shadow:inset 0 -8px 0 rgba(0,0,0,.12)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.opt{font:inherit;font-size:21px;font-weight:700;padding:10px 12px;border-radius:16px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-align:center}
+.opt:hover:not(:disabled){border-color:var(--accent2)}
+.opt.right{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.swopts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.sw{width:72px;height:72px;border-radius:50%;border:4px solid var(--line);cursor:pointer;box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
+.sw.right{outline:5px solid var(--ok);outline-offset:3px}
+.sw.wrong{outline:5px solid var(--bad);outline-offset:3px;opacity:.6}
+.typebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.typebox .pre{font-size:22px;font-weight:800}
+.typebox input{font:inherit;font-size:22px;font-weight:700;padding:8px 12px;border-radius:14px;border:3px solid var(--accent2);background:var(--bg);color:var(--ink);min-width:0;flex:1;max-width:320px}
+.typebox input.okk{border-color:var(--ok)}.typebox input.bad{border-color:var(--bad)}
+.accents{display:flex;gap:6px;margin:8px 0}
+.accents button{font:inherit;font-size:20px;font-weight:800;width:44px;height:40px;border-radius:10px;border:2px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer}
+.line{min-height:56px;border:3px dashed var(--accent2);border-radius:16px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.bank{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.wt{font:inherit;font-size:20px;font-weight:800;padding:6px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer}
+.wt.used{visibility:hidden}
+.fb{border-radius:16px;padding:10px 14px;margin-top:12px;font-size:18px}
+.fb.ok{background:var(--ok-bg)}.fb.bad{background:var(--bad-bg)}.fb.tip{background:var(--surface2)}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.done{background:var(--ok-bg);border-radius:20px;padding:16px;text-align:center;margin-bottom:14px}
+.done .big{font-size:42px;font-weight:800}
+table.res{width:100%;border-collapse:collapse;margin:10px 0;font-size:17px}
+table.res th,table.res td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+table.res td.c{text-align:center}
+.tag{display:inline-block;border-radius:8px;padding:0 8px;font-weight:800;font-size:15px}
+.tag.g{background:var(--ok-bg);color:var(--ok)}.tag.y{background:#fff1c2;color:#6b5200}.tag.r{background:var(--bad-bg);color:var(--bad)}
+.dict{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:8px;text-align:center;cursor:pointer;font:inherit;color:inherit}
+.card .pic{width:96px;height:96px;margin:2px auto 4px;border-radius:16px}
+.card .pic svg{width:78px;height:78px}
+.card .w{font-weight:800;font-size:19px;line-height:1.2}
+.card .lv{color:var(--muted);font-size:15px}
+.colrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.colcard{display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px 10px;cursor:pointer;font:inherit;color:inherit;text-align:left}
+.dot{width:36px;height:36px;border-radius:50%;border:3px solid var(--line);flex:none}
+.trousse{background:linear-gradient(135deg,var(--surface2),var(--surface));border:2px solid var(--line);border-radius:20px;padding:12px 14px;margin-bottom:14px}
+.trousse .row{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;min-height:52px;background:var(--card);border-radius:14px;padding:4px}
+.trousse .row svg{width:46px;height:46px}
+.bar{height:12px;background:var(--surface);border-radius:999px;overflow:hidden;border:2px solid var(--line);margin:4px 0}
+.bar>i{display:block;height:100%;background:var(--gold)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:16px;font-weight:800;z-index:50;max-width:90vw;text-align:center;animation:up .3s}
+@keyframes up{from{transform:translate(-50%,120%)}}
+.confetti{position:fixed;top:-40px;font-size:28px;z-index:40;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (max-width:480px){.prompt{font-size:21px}.opt{font-size:19px}header h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="home"><span class="flag"></span>Ma trousse</h1>
+    <span class="pill" id="stars">⭐ 0</span>
+    <button class="btn small" id="snd">🔊</button>
+  </header>
+  <main id="main"></main>
+</div>
+<script>
+/* ============ palīgi ============ */
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function el(t,c,txt){const e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+function btn(t,c,f){const b=el('button','btn '+(c||''),t);b.onclick=f;return b;}
+const store={get(k,d){try{const v=localStorage.getItem('frtr_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('frtr_'+k,JSON.stringify(v));}catch(e){}}};
+const S={stars:store.get('stars',0),sound:store.get('sound',true),mist:store.get('mist',[]),tests:store.get('tests',[]),seen:store.get('seen',false),stats:store.get('stats',{})};
+function save(){for(const k in S)store.set(k,S[k]);}
+
+/* ============ balss ============ */
+let frVoice=null;
+function loadVoices(){try{const vs=speechSynthesis.getVoices();frVoice=vs.find(v=>/^fr/i.test(v.lang)&&/Amélie|Thomas|Google|Audrey|Marie/i.test(v.name))||vs.find(v=>/^fr/i.test(v.lang))||null;}catch(e){}}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function say(t){if(!S.sound||!t||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';if(frVoice)u.voice=frVoice;u.rate=.85;speechSynthesis.speak(u);}catch(e){}}
+function sayBtn(t){const b=el('button','say','🔊');b.title='Klausīties';b.onclick=e=>{e.stopPropagation();const s=S.sound;S.sound=true;say(t);S.sound=s;};return b;}
+
+/* ============ dati (pēc skolas burtnīcas) ============ */
+// c: 'school' — skolas lietas, 'class' — klasē
+const ITEMS=[
+ {w:'sac',pl:'sacs',g:'m',lv:'soma',lvpl:'somas',lg:'f',c:'school'},
+ {w:'sac à dos',pl:'sacs à dos',g:'m',lv:'mugursoma',lvpl:'mugursomas',lg:'f',c:'school'},
+ {w:'livre',pl:'livres',g:'m',lv:'grāmata',lvpl:'grāmatas',lg:'f',c:'school'},
+ {w:'cahier',pl:'cahiers',g:'m',lv:'burtnīca',lvpl:'burtnīcas',lg:'f',c:'school'},
+ {w:'crayon',pl:'crayons',g:'m',lv:'zīmulis',lvpl:'zīmuļi',lg:'m',c:'school'},
+ {w:'stylo',pl:'stylos',g:'m',lv:'pildspalva',lvpl:'pildspalvas',lg:'f',c:'school'},
+ {w:'feutre',pl:'feutres',g:'m',lv:'flomasters',lvpl:'flomasteri',lg:'m',c:'school'},
+ {w:'taille-crayon',pl:'taille-crayons',g:'m',lv:'zīmuļu asināmais',lvpl:'zīmuļu asināmie',lg:'m',c:'school'},
+ {w:'trousse',pl:'trousses',g:'f',lv:'penālis',lvpl:'penāļi',lg:'m',c:'school'},
+ {w:'gomme',pl:'gommes',g:'f',lv:'dzēšgumija',lvpl:'dzēšgumijas',lg:'f',c:'school'},
+ {w:'règle',pl:'règles',g:'f',lv:'lineāls',lvpl:'lineāli',lg:'m',c:'school'},
+ {w:'colle',pl:'colles',g:'f',lv:'līme',lvpl:'līmes',lg:'f',c:'school'},
+ {w:'ciseaux',pl:'ciseaux',g:'m',lv:'šķēres',lvpl:'šķēres',lg:'f',c:'school',onlyPl:true},
+ {w:'classe',pl:'classes',g:'f',lv:'klase',lvpl:'klases',lg:'f',c:'class'},
+ {w:'tableau',pl:'tableaux',g:'m',lv:'tāfele',lvpl:'tāfeles',lg:'f',c:'class'},
+ {w:'tableau interactif',pl:'tableaux interactifs',g:'m',lv:'interaktīvā tāfele',lvpl:'interaktīvās tāfeles',lg:'f',c:'class'},
+ {w:'table',pl:'tables',g:'f',lv:'galds',lvpl:'galdi',lg:'m',c:'class'},
+ {w:'chaise',pl:'chaises',g:'f',lv:'krēsls',lvpl:'krēsli',lg:'m',c:'class'},
+ {w:'corbeille',pl:'corbeilles',g:'f',lv:'miskaste',lvpl:'miskastes',lg:'f',c:'class'}];
+const IT=Object.fromEntries(ITEMS.map(i=>[i.w,i]));
+const SCHOOLIT=ITEMS.filter(i=>i.c==='school');
+// krāsas; inv — nemainās (orange, marron, saliktās krāsas)
+const COLORS=[
+ {m:'rouge',f:'rouge',lv:'sarkans',h:'#e53935'},{m:'bleu',f:'bleue',lv:'zils',h:'#1e66f5'},
+ {m:'vert',f:'verte',lv:'zaļš',h:'#2e9e44'},{m:'jaune',f:'jaune',lv:'dzeltens',h:'#fdd835'},
+ {m:'noir',f:'noire',lv:'melns',h:'#262626'},{m:'blanc',f:'blanche',lv:'balts',h:'#ffffff'},
+ {m:'orange',f:'orange',lv:'oranžs',h:'#fb8c00',inv:1},{m:'rose',f:'rose',lv:'rozā',h:'#f78fb3'},
+ {m:'violet',f:'violette',lv:'violets',h:'#8e44ad'},{m:'gris',f:'grise',lv:'pelēks',h:'#9e9e9e'},
+ {m:'marron',f:'marron',lv:'brūns',h:'#6d3f22',inv:1},{m:'beige',f:'beige',lv:'bēšs',h:'#d9b98c'},
+ {m:'bleu ciel',f:'bleu ciel',lv:'gaiši zils',h:'#4fb3f0',inv:1,cmp:1},
+ {m:'rouge foncé',f:'rouge foncé',lv:'tumši sarkans',h:'#8e1b1b',inv:1,cmp:1},
+ {m:'vert clair',f:'vert clair',lv:'gaiši zaļš',h:'#a5dc8f',inv:1,cmp:1}];
+const BASIC=COLORS.filter(c=>!c.cmp);
+const EMO=[
+ {m:'content',f:'contente',lm:'apmierināts',lf:'apmierināta',e:'😊'},
+ {m:'triste',f:'triste',lm:'bēdīgs',lf:'bēdīga',e:'😢'},
+ {m:'malade',f:'malade',lm:'slims',lf:'slima',e:'🤒'},
+ {m:'fâché',f:'fâchée',lm:'dusmīgs',lf:'dusmīga',e:'😠'},
+ {m:'fatigué',f:'fatiguée',lm:'noguris',lf:'nogurusi',e:'😫'}];
+const PRON=[['je','es'],['tu','tu'],['il','viņš'],['elle','viņa'],['nous','mēs'],['vous','jūs'],['ils','viņi'],['elles','viņas']];
+const APPEL={je:"m'appelle",tu:"t'appelles",il:"s'appelle",elle:"s'appelle",nous:'nous appelons',vous:'vous appelez',ils:"s'appellent",elles:"s'appellent"};
+const NAMES={je:'Léa',tu:'Anna',il:'Carlos',elle:'Nadia',nous:'les Copains',vous:'Marie',ils:'Nan et Tibo',elles:'Mélodie et Anna'};
+const LVSAUC={je:'Mani sauc',tu:'Tevi sauc',il:'Viņu sauc',elle:'Viņu sauc',nous:'Mūs sauc',vous:'Jūs sauc',ils:'Viņus sauc',elles:'Viņas sauc'};
+
+/* --- vārdu formas --- */
+// n = {it, p} — lieta un vai daudzskaitlī
+const np=(it,p)=>({it,p:!!(p||it.onlyPl)});
+const rndNP=(pool,plChance=.35)=>{const it=pick(pool);return np(it,Math.random()<plChance);};
+const frN=n=>n.p?n.it.pl:n.it.w;
+const UN=n=>n.p?'des':n.it.g==='m'?'un':'une';
+const LE=n=>n.p?'les':n.it.g==='m'?'le':'la';
+const MON=n=>n.p?'mes':n.it.g==='m'?'mon':'ma';
+const PR=n=>n.p?(n.it.g==='m'?'Ils':'Elles'):(n.it.g==='m'?'Il':'Elle');
+const EST=n=>n.p?'sont':'est';
+const key=n=>n.it.g+(n.p?'pl':'');
+const lvKey=n=>n.it.lg+(n.p?'pl':'');
+const lvN=n=>n.p?n.it.lvpl:n.it.lv;
+const LVDEM={m:'Tas',f:'Tā',mpl:'Tie',fpl:'Tās'};
+const LVMANS={m:'mans',f:'mana',mpl:'mani',fpl:'manas'};
+function lvAdj(lv,k){const ps=lv.split(' '),last=ps.pop();let f=last;if(last!=='rozā'){const st=last.replace(/(s|š)$/,'');f=k==='m'?last:k==='f'?st+'a':k==='mpl'?st+'i':st+'as';}return[...ps,f].join(' ');}
+function colOf(c,n){if(c.inv)return c.m;const k=key(n);return k==='m'?c.m:k==='f'?c.f:k==='mpl'?(c.m.endsWith('s')?c.m:c.m+'s'):c.f+'s';}
+function colForms(c){
+  if(c.inv){if(c.cmp){const [a,...r]=c.m.split(' ');const fa=(CL[a]||{f:a+'e'}).f;return[c.m,[fa,...r].join(' '),c.m.split(' ').map(x=>x+'s').join(' ')];}return[c.m,c.m+'s',c.m+'e'];}
+  const s=new Set([c.m,c.f,c.m.endsWith('s')?c.m:c.m+'s',c.f+'s']);if(!c.m.endsWith('e'))s.add(c.m+'e');if(c.m==='blanc')s.add('blance');if(c.m==='violet')s.add('violete');return[...s];}
+const CL=Object.fromEntries(COLORS.map(c=>[c.m,c]));
+const gcls=n=>n.p?'gp':n.it.g==='m'?'gm':'gf';
+const glv=n=>(n.it.g==='m'?'vīriešu dzimte':'sieviešu dzimte')+(n.p?', daudzskaitlis':'');
+const art=(a,n)=>`<span class="${gcls(n)}">${a} ${frN(n)}</span>`;
+
+/* ============ zīmējumi ============ */
+function shade(h,p){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(p<0?v*(1+p):v+(255-v)*p)));return'#'+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const DEFCOL={sac:'#7b4a2d','sac à dos':'#e53935',livre:'#1e66f5',cahier:'#2e9e44',stylo:'#1e66f5',crayon:'#fdd835',feutre:'#e53935','taille-crayon':'#8e44ad',trousse:'#2e9e44',gomme:'#f78fb3',règle:'#fdd835',colle:'#ffffff',ciseaux:'#e53935',classe:'#f2d388',tableau:'#2f6b45','tableau interactif':'#bfe3ff',table:'#c48a52',chaise:'#1e66f5',corbeille:'#9e9e9e'};
+function icon(w,c){
+  c=c||DEFCOL[w];const d=shade(c,c==='#262626'?.35:-.28),o='#3a3346',S2=`stroke="${o}" stroke-width="3" stroke-linejoin="round"`;
+  const g={
+  sac:`<path d="M30 42 Q50 2 70 42" fill="none" stroke="${d}" stroke-width="6"/><rect x="16" y="38" width="68" height="48" rx="8" fill="${c}" ${S2}/><path d="M16 46 Q16 38 24 38 H76 Q84 38 84 46 V58 Q50 70 16 58 Z" fill="${d}" ${S2}/><circle cx="50" cy="61" r="4.5" fill="#ffd54f" ${S2}/>`,
+  'sac à dos':`<path d="M38 32 Q50 14 62 32" fill="none" stroke="${d}" stroke-width="7"/><rect x="18" y="30" width="64" height="58" rx="14" fill="${c}" ${S2}/><path d="M18 46 Q18 30 34 30 H66 Q82 30 82 46 Z" fill="${d}" ${S2}/><rect x="30" y="58" width="40" height="22" rx="6" fill="${d}" ${S2}/>`,
+  livre:`<rect x="22" y="14" width="56" height="72" rx="4" fill="${c}" ${S2}/><rect x="23.5" y="15.5" width="10" height="69" fill="${d}"/><rect x="42" y="30" width="28" height="12" rx="2" fill="#fff" opacity=".85"/>`,
+  cahier:`<rect x="26" y="12" width="52" height="76" rx="3" fill="${c}" ${S2}/>${[22,34,46,58,70,82].map(y=>`<circle cx="26" cy="${y}" r="4" fill="#fff" ${S2}/>`).join('')}<rect x="38" y="26" width="30" height="16" rx="2" fill="#fff" stroke="${o}" stroke-width="2"/>`,
+  stylo:`<g transform="rotate(35 50 50)"><rect x="43" y="10" width="14" height="62" rx="5" fill="${c}" ${S2}/><polygon points="44,72 56,72 50,90" fill="#ddd" ${S2}/><rect x="56" y="14" width="4" height="26" rx="2" fill="${d}" stroke="${o}" stroke-width="2"/></g>`,
+  crayon:`<g transform="rotate(35 50 50)"><rect x="42" y="14" width="16" height="54" fill="${c}" ${S2}/><rect x="42" y="4" width="16" height="10" rx="2" fill="#f7a8bd" ${S2}/><polygon points="42,68 58,68 50,90" fill="#f2cf98" ${S2}/><polygon points="47.3,82 52.7,82 50,90" fill="${c}" stroke="${o}" stroke-width="2"/><line x1="50" y1="16" x2="50" y2="66" stroke="${d}" stroke-width="3"/></g>`,
+  feutre:`<g transform="rotate(35 50 50)"><rect x="41" y="28" width="18" height="50" rx="5" fill="#fafafa" ${S2}/><rect x="39" y="6" width="22" height="26" rx="6" fill="${c}" ${S2}/><polygon points="44,78 56,78 50,92" fill="${c}" ${S2}/><rect x="41" y="50" width="18" height="10" fill="${c}"/></g>`,
+  'taille-crayon':`<rect x="24" y="32" width="52" height="38" rx="7" fill="${c}" ${S2}/><circle cx="40" cy="51" r="9" fill="#3a3346"/><rect x="55" y="41" width="13" height="20" rx="2" fill="#d7d7d7" stroke="${o}" stroke-width="2"/>`,
+  trousse:`<rect x="12" y="32" width="76" height="40" rx="18" fill="${c}" ${S2}/><path d="M22 43 H78" stroke="${o}" stroke-width="2.5" stroke-dasharray="4 3"/><rect x="72" y="40" width="10" height="16" rx="3" fill="#ddd" stroke="${o}" stroke-width="2"/>`,
+  gomme:`<g transform="rotate(-20 50 50)"><rect x="22" y="36" width="56" height="28" rx="6" fill="${c}" ${S2}/><rect x="50" y="37.5" width="20" height="25" fill="#fff" opacity=".75"/></g>`,
+  règle:`<g transform="rotate(-25 50 50)"><rect x="6" y="40" width="88" height="20" rx="2" fill="${c}" ${S2}/>${[14,22,30,38,46,54,62,70,78,86].map((x,i)=>`<line x1="${x}" y1="40" x2="${x}" y2="${i%2?47:51}" stroke="${o}" stroke-width="2"/>`).join('')}</g>`,
+  colle:`<rect x="35" y="34" width="30" height="54" rx="5" fill="${c}" ${S2}/><rect x="33" y="14" width="34" height="22" rx="5" fill="${d}" ${S2}/><rect x="40" y="48" width="20" height="22" rx="2" fill="#ffd54f" stroke="${o}" stroke-width="2"/>`,
+  ciseaux:`<polygon points="42,60 70,12 75,15 50,64" fill="#cfd4da" ${S2}/><polygon points="58,60 30,12 25,15 50,64" fill="#e3e7eb" ${S2}/><circle cx="35" cy="74" r="11" fill="none" stroke="${c}" stroke-width="7"/><circle cx="65" cy="74" r="11" fill="none" stroke="${c}" stroke-width="7"/><circle cx="50" cy="60" r="3" fill="${o}"/>`,
+  classe:`<rect x="8" y="12" width="84" height="76" rx="4" fill="#f6efe2" ${S2}/><rect x="22" y="20" width="56" height="24" rx="2" fill="#2f6b45" stroke="${o}" stroke-width="2"/>${[18,44,70].map(x=>`<rect x="${x}" y="58" width="16" height="6" fill="${c}" stroke="${o}" stroke-width="2"/><rect x="${x+2}" y="64" width="3" height="14" fill="${o}"/><rect x="${x+11}" y="64" width="3" height="14" fill="${o}"/>`).join('')}`,
+  tableau:`<rect x="8" y="16" width="84" height="56" rx="3" fill="#a1704a" ${S2}/><rect x="14" y="22" width="72" height="44" fill="${c}"/><path d="M22 36 h22 M22 46 h34 M22 56 h16" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><rect x="20" y="72" width="60" height="6" fill="#a1704a" ${S2}/>`,
+  'tableau interactif':`<rect x="8" y="14" width="84" height="58" rx="5" fill="#3a3346" ${S2}/><rect x="14" y="20" width="72" height="46" rx="2" fill="${c}"/><rect x="22" y="44" width="8" height="16" fill="#1e66f5"/><rect x="34" y="34" width="8" height="26" fill="#ef476f"/><rect x="46" y="28" width="8" height="32" fill="#2e9e44"/><circle cx="70" cy="36" r="8" fill="#fdd835"/><rect x="46" y="72" width="8" height="14" fill="#3a3346"/>`,
+  table:`<rect x="8" y="36" width="84" height="12" rx="2" fill="${c}" ${S2}/><rect x="14" y="48" width="8" height="38" fill="${d}" ${S2}/><rect x="78" y="48" width="8" height="38" fill="${d}" ${S2}/>`,
+  chaise:`<rect x="30" y="10" width="40" height="34" rx="5" fill="${c}" ${S2}/><rect x="30" y="44" width="6" height="12" fill="${d}"/><rect x="64" y="44" width="6" height="12" fill="${d}"/><rect x="26" y="54" width="48" height="9" rx="2" fill="${c}" ${S2}/><rect x="29" y="63" width="6" height="26" fill="${d}" ${S2}/><rect x="65" y="63" width="6" height="26" fill="${d}" ${S2}/>`,
+  corbeille:`<polygon points="24,30 76,30 70,88 30,88" fill="${c}" ${S2}/><rect x="20" y="24" width="60" height="9" rx="3" fill="${d}" ${S2}/>${[38,50,62].map(x=>`<line x1="${x}" y1="38" x2="${x}" y2="82" stroke="${d}" stroke-width="3"/>`).join('')}<path d="M44 20 l6 -8 l7 9" fill="#fff" ${S2}/>`};
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${g[w]}</svg>`;
+}
+// daudzskaitlī rāda 2 lietas
+const picOf=(n,c)=>n.p&&!n.it.onlyPl?`<div class="pic two">${icon(n.it.w,c)}${icon(n.it.w,c)}</div>`:`<div class="pic">${icon(n.it.w,c)}</div>`;
+const emoPic=(e,g)=>`<div class="pic"><span style="font-size:66px;line-height:1">${e.e}</span><span style="font-size:38px;align-self:flex-end">${g==='m'?'👦':'👧'}</span></div>`;
+
+/* ============ uzdevumu ģeneratori ============ */
+const SK={voc:'Nosaucu skolas un klases lietas',col:'Nosaucu krāsas',gen:'Lietoju un / une / des, le / la / les',agr:'Saskaņoju krāsu ar lietvārdu',pos:'Lietoju mon / ma / mes',phr:'Saprotu un veidoju teikumus',emo:'Nosaucu emocijas',pro:'Vietniekvārdi un s\'appeler'};
+const mc=(sk,kind,o)=>Object.assign({sk,kind,t:'mc'},o);
+function optsWith(correct,wrongs,n=4){const w=shuffle([...new Set(wrongs)].filter(x=>x!==correct)).slice(0,n-1);const opts=shuffle([correct,...w]);return{opts,ans:opts.indexOf(correct)};}
+const othersIt=(it,pool,k=3)=>shuffle(pool.filter(x=>x.w!==it.w)).slice(0,k);
+const otherCols=(c,k=3,pool=COLORS)=>shuffle(pool.filter(x=>x.m!==c.m)).slice(0,k);
+const expN=n=>`${art(UN(n),n)} — ${lvN(n)} (${glv(n)})`;
+function agrExp(n,c){const f=colOf(c,n);let r=`${art(UN(n),n)} — ${glv(n)} → <b>${f}</b>. `;
+  if(c.cmp)r+='Saliktās krāsas (bleu ciel, rouge foncé, vert clair) nemainās.';
+  else if(c.inv)r+=`${c.m} nekad nemainās.`;
+  else if(n.it.g==='f'&&c.m===c.f)r+=`${c.m} jau beidzas ar -e, tāpēc sieviešu dzimtē nemainās${n.p?', daudzskaitlī pieliek -s':''}.`;
+  else if(n.it.g==='f'&&c.m==='blanc')r+=`blanc → blanche${n.p?'s':''} (īpašs gadījums).`;
+  else if(n.it.g==='f'&&c.m==='violet')r+=`violet → violette${n.p?'s':''} (divi t).`;
+  else if(n.it.g==='f')r+=`Sieviešu dzimtē pieliek -e${n.p?', daudzskaitlī vēl -s':''}: ${c.m} → ${f}.`;
+  else if(n.p)r+=c.m.endsWith('s')?`${c.m} jau beidzas ar -s.`:'Daudzskaitlī pieliek -s.';
+  else r+='Vīriešu dzimtē krāsa paliek pamatformā.';
+  return r+' Krāsa ir <b>aiz</b> lietvārda.';}
+
+const G={
+ // skolas lietas
+ vocPic(){const n=np(pick(SCHOOLIT));const r=UN(n)+' '+frN(n);return mc('voc','Kas tas ir?',{pic:picOf(n),q:"Qu'est-ce que c'est ?",sayQ:"Qu'est-ce que c'est ?",...optsWith(r,othersIt(n.it,SCHOOLIT).map(x=>UN(np(x))+' '+np(x).it.w)),say:r,exp:expN(n)});},
+ vocLvFr(){const n=np(pick(ITEMS));const r=(n.it.c==='class'?LE(n):UN(n))+' '+frN(n);return mc('voc','Kā franciski?',{q:lvN(n),...optsWith(r,othersIt(n.it,ITEMS).map(x=>{const m=np(x);return(x.c==='class'?LE(m):UN(m))+' '+frN(m);})),say:r,exp:expN(n)});},
+ vocFrLv(){const n=np(pick(ITEMS));const s=(n.it.c==='class'?LE(n):UN(n))+' '+frN(n);return mc('voc','Ko tas nozīmē?',{q:s,sayQ:s,...optsWith(lvN(n),othersIt(n.it,ITEMS).map(x=>lvN(np(x)))),say:s,exp:expN(n)});},
+ vocClass(){const n=np(pick(ITEMS.filter(i=>i.c==='class')));const r=LE(n)+' '+frN(n);return mc('voc','Klasē — kas tas ir?',{pic:picOf(n),q:"Qu'est-ce que c'est ?",sayQ:"Qu'est-ce que c'est ?",...optsWith(r,othersIt(n.it,ITEMS.filter(i=>i.c==='class')).map(x=>LE(np(x))+' '+x.w)),say:r,exp:`${art(LE(n),n)} — ${n.it.lv} (${glv(n)})`});},
+ vocType(){const n=np(pick(SCHOOLIT));return{sk:'voc',kind:'Uzraksti vārdu',t:'type',pic:picOf(n),q:'Uzraksti, kas tas ir:',pre:UN(n),ans:frN(n),say:UN(n)+' '+frN(n),exp:expN(n)};},
+ // krāsas
+ colSw(){const c=pick(COLORS);return mc('col','Kāda krāsa?',{sw:c.h,q:"C'est quelle couleur ?",...optsWith(c.m,otherCols(c).map(x=>x.m)),say:c.m,exp:`<b>${c.m}</b> — ${c.lv}`});},
+ colLvFr(){const c=pick(COLORS);return mc('col','Kā franciski?',{q:c.lv,...optsWith(c.m,otherCols(c).map(x=>x.m)),say:c.m,exp:`<b>${c.m}</b> — ${c.lv}`});},
+ colPick(){const c=pick(COLORS),os=shuffle([c,...otherCols(c,4)]);return{sk:'col',kind:'Atrodi krāsu',t:'sw',q:c.m,sayQ:c.m,swatches:os.map(x=>x.h),ans:os.indexOf(c),say:c.m,exp:`<b>${c.m}</b> — ${c.lv}`};},
+ colFav(){const c=pick(COLORS),r=`C'est ${c.m}.`;return mc('col','Atbildi uz jautājumu',{sw:c.h,q:'Quelle est ta couleur préférée ?',sayQ:'Quelle est ta couleur préférée ?',...optsWith(r,[`Ce sont ${c.m}.`,`Je suis ${c.m}.`,`C'est ${pick(otherCols(c)).m}.`]),say:r,exp:`<b>Quelle est ta couleur préférée ?</b> — Kāda ir tava mīļākā krāsa? → <b>C'est ${c.m}.</b> (Tā ir ${c.lv} krāsa.)`});},
+ // dzimtes
+ genUn(){const n=rndNP(SCHOOLIT);const o=['un','une','des'];return mc('gen','Un, une vai des?',{q:'… '+frN(n),pic:picOf(n),opts:o,ans:o.indexOf(UN(n)),say:UN(n)+' '+frN(n),exp:`${expN(n)}.${n.it.onlyPl?' Šķēres franciski ir daudzskaitlī — <b>des</b> ciseaux.':n.p?' Daudzskaitlī vienmēr <b>des</b>.':''}`});},
+ genLe(){const n=rndNP(ITEMS);const o=['le','la','les'];return mc('gen','Le, la vai les?',{q:'… '+frN(n),pic:picOf(n),opts:o,ans:o.indexOf(LE(n)),say:LE(n)+' '+frN(n),exp:`${art(LE(n),n)} — ${glv(n)}. le = un, la = une, les = des.`});},
+ genMF(){const it=pick(ITEMS.filter(x=>!x.onlyPl)),n=np(it);const o=['vīriešu dzimte (un, le)','sieviešu dzimte (une, la)'];return mc('gen','Kāda dzimte?',{q:it.w,sayQ:it.w,pic:picOf(n),opts:o,ans:it.g==='m'?0:1,say:UN(n)+' '+it.w,exp:`${expN(n)}. ${it.lg!==it.g?`⚠️ Latviski <i>${it.lv}</i> ir ${it.lg==='m'?'vīriešu':'sieviešu'} dzimtē, bet franciski — ${it.g==='m'?'vīriešu':'sieviešu'}! Dzimti mācies kopā ar vārdu.`:''}`});},
+ // krāsa + lieta
+ agrPhrase(){const n=rndNP(SCHOOLIT,.45),c=pick(COLORS);const base=UN(n)+' '+frN(n),right=base+' '+colOf(c,n);
+   const wr=colForms(c).filter(f=>f!==colOf(c,n)).map(f=>base+' '+f);wr.push(UN(n)+' '+colOf(c,n)+' '+frN(n));
+   return mc('agr','Izvēlies pareizi',{pic:picOf(n,c.h),q:`${lvAdj(c.lv,lvKey(n))} ${lvN(n)}`,...optsWith(right,wr),say:right,exp:agrExp(n,c)});},
+ agrFill(){const n=rndNP(SCHOOLIT,.45),c=pick(COLORS);const right=colOf(c,n);
+   return mc('agr','Ieliec krāsu',{pic:picOf(n,c.h),q:`${UN(n)} ${frN(n)} ____ <span class="muted small">(${lvAdj(c.lv,lvKey(n))})</span>`,...optsWith(right,colForms(c)),say:UN(n)+' '+frN(n)+' '+right,exp:agrExp(n,c)});},
+ agrType(){const n=rndNP(SCHOOLIT.filter(x=>!x.onlyPl),.3),c=pick(BASIC);return{sk:'agr',kind:'Uzraksti krāsu',t:'type',pic:picOf(n,c.h),q:`Uzraksti krāsu pareizajā formā (${lvAdj(c.lv,lvKey(n))}):`,pre:UN(n)+' '+frN(n),ans:colOf(c,n),say:UN(n)+' '+frN(n)+' '+colOf(c,n),exp:agrExp(n,c)};},
+ // mon / ma / mes
+ posFill(){const n=rndNP(SCHOOLIT,.4);const o=['mon','ma','mes'];return mc('pos','Mon, ma vai mes?',{q:'… '+frN(n)+` <span class="muted small">(${LVMANS[lvKey(n)]} ${lvN(n)})</span>`,pic:picOf(n),opts:o,ans:o.indexOf(MON(n)),say:MON(n)+' '+frN(n),exp:`${art(MON(n),n)} — ${glv(n)}. un → <b>mon</b>, une → <b>ma</b>, des → <b>mes</b>.`});},
+ posSent(){const n=rndNP(SCHOOLIT,.45),c=pick(COLORS);const r=`${MON(n)[0].toUpperCase()+MON(n).slice(1)} ${frN(n)} ${EST(n)} ${colOf(c,n)}.`;const cap=s=>s[0].toUpperCase()+s.slice(1);
+   const otherMon=n.p?'mon':n.it.g==='m'?'ma':'mon';const otherCol=colForms(c).find(f=>f!==colOf(c,n))||c.m+'s';
+   const wr=[`${cap(otherMon)} ${frN(n)} ${EST(n)} ${colOf(c,n)}.`,`${cap(MON(n))} ${frN(n)} ${EST(n)} ${otherCol}.`,`${cap(MON(n))} ${frN(n)} ${n.p?'est':'sont'} ${colOf(c,n)}.`];
+   const lvq=`${cap(LVMANS[lvKey(n)])} ${lvN(n)} ir ${lvAdj(c.lv,lvKey(n))}.`;
+   return mc('pos','Kā pateikt franciski?',{pic:picOf(n,c.h),q:lvq,...optsWith(r,wr),say:r,exp:`${art(MON(n),n)} — ${glv(n)}; ${n.p?'daudzskaitlī <b>sont</b>':'vienskaitlī <b>est</b>'}; krāsa <b>${colOf(c,n)}</b>.`});},
+ posBuild(){const n=rndNP(SCHOOLIT.filter(x=>!x.onlyPl),0);const words=["C'est",MON(n),frN(n)+'.'];
+   return{sk:'pos',kind:'Saliec teikumu',t:'build',pic:picOf(n),q:`Tas ir ${LVMANS[lvKey(n)]} ${lvN(n)}.`.replace(/^Tas/,LVDEM[lvKey(n)]),words,bank:shuffle([...words,n.it.g==='m'?'ma':'mon','mes']),say:words.join(' '),exp:`<b>${words.join(' ')}</b> — ${n.it.w} ir ${glv(n)}, tāpēc <b>${MON(n)}</b>.`};},
+ // teikumi
+ phrCest(){const n=rndNP(SCHOOLIT,.35);const r=n.p?`Ce sont des ${frN(n)}.`:`C'est ${UN(n)} ${frN(n)}.`;
+   const wr=n.p?[`C'est des ${frN(n)}.`,`Ces sont des ${frN(n)}.`,`Ce sont ${n.it.g==='m'?'un':'une'} ${frN(n)}.`]:[`C'est ${n.it.g==='m'?'une':'un'} ${frN(n)}.`,`${PR(n)} est ${UN(n)} ${frN(n)}.`,`C'est ${frN(n)}.`];
+   return mc('phr','Atbildi uz jautājumu',{pic:picOf(n),q:"Qu'est-ce que c'est ?",sayQ:"Qu'est-ce que c'est ?",...optsWith(r,wr),say:r,exp:n.p?'Daudzskaitlī: <b>Ce sont des …</b> (Tās ir …). Raksta <b>Ce</b>, nevis „Ces”!':'<b>C\'est un/une …</b> — Tas ir … . Neaizmirsti artikulu!'});},
+ phrColor(){const n=rndNP(SCHOOLIT,.4),c=pick(COLORS);const r=`${PR(n)} ${EST(n)} ${colOf(c,n)}.`;const otherPr=n.p?(n.it.g==='m'?'Elles':'Ils'):(n.it.g==='m'?'Elle':'Il');
+   const alt=[`${otherPr} ${EST(n)} ${colOf(c,n)}.`,`${PR(n)} ${EST(n)} ${colForms(c).find(f=>f!==colOf(c,n))}.`,`${PR(n)} ${n.p?'est':'sont'} ${colOf(c,n)}.`];
+   const q=n.p?`De quelle couleur sont ${LE(n)} ${frN(n)} ?`:`De quelle couleur est ${LE(n)} ${frN(n)} ?`;
+   return mc('phr','Atbildi uz jautājumu',{pic:picOf(n,c.h),q,sayQ:q,...optsWith(r,alt),say:r,exp:`${art(LE(n),n)} — ${glv(n)}, tāpēc <b>${PR(n)} ${EST(n)}</b> un krāsa <b>${colOf(c,n)}</b>. (il — viņš/tas, elle — viņa/tā, ils — viņi/tie, elles — viņas/tās)`});},
+ phrBuild(){const n=rndNP(SCHOOLIT.filter(x=>!x.onlyPl),.4),c=pick(BASIC);const words=n.p?['Ce','sont','des',frN(n),colOf(c,n)+'.']:["C'est",UN(n),frN(n),colOf(c,n)+'.'];
+   const extra=n.p?['Ces',(colForms(c).find(f=>f!==colOf(c,n)))+'.']:[n.it.g==='m'?'une':'un',(colForms(c).find(f=>f!==colOf(c,n)))+'.'];
+   return{sk:'phr',kind:'Saliec teikumu',t:'build',pic:picOf(n,c.h),q:`${LVDEM[lvKey(n)]} ir ${lvAdj(c.lv,lvKey(n))} ${lvN(n)}.`,words,bank:shuffle([...words,...extra]),say:words.join(' '),exp:`<b>${words.join(' ')}</b> — krāsa ir <b>aiz</b> lietvārda un saskaņojas ar to.`};},
+ // emocijas
+ emoPick(){const e=pick(EMO),g=pick(['m','f']);const pr=g==='m'?'Il':'Elle',r=`${pr} est ${e[g]}.`;
+   const wr=[g==='m'?`Il est ${e.f}.`:`Elle est ${e.m}.`,...shuffle(EMO.filter(x=>x!==e)).slice(0,3).map(x=>`${pr} est ${x[g]}.`)];
+   return mc('emo','Kā viņš/viņa jūtas?',{pic:emoPic(e,g),q:'Comment ça va ?',sayQ:'Comment ça va ?',...optsWith(r,wr),say:r,exp:`<b>${e.m} / ${e.f}</b> — ${e.lm} / ${e.lf}. ${e.m===e.f?'Beidzas ar -e — nemainās.':'Sieviešu dzimtē pieliek -e.'}`});},
+ emoLv(){const e=pick(EMO),g=pick(['m','f']);const r=(g==='m'?'Je suis ':'Je suis ')+e[g]+'.';
+   const wr=[`Je suis ${g==='m'?e.f:e.m}.`,`Je suis ${pick(EMO.filter(x=>x!==e))[g]}.`,`Il est ${e[g]}.`];
+   return mc('emo','Kā pateikt franciski?',{pic:emoPic(e,g),q:`Es esmu ${g==='m'?e.lm:e.lf}.${g==='f'?' <span class="muted small">(saka meitene)</span>':' <span class="muted small">(saka zēns)</span>'}`,...optsWith(r,wr),say:r,exp:`<b>Je suis</b> — es esmu. Meitene saka <b>${e.f}</b>, zēns — <b>${e.m}</b>.`});},
+ emoType(){const e=pick(EMO.filter(x=>x.m!==x.f)),g=pick(['m','f']);return{sk:'emo',kind:'Uzraksti vārdu',t:'type',pic:emoPic(e,g),q:`Uzraksti (${g==='m'?e.lm:e.lf}):`,pre:g==='m'?'Il est':'Elle est',ans:e[g],say:(g==='m'?'Il est ':'Elle est ')+e[g],exp:`<b>${e.m} / ${e.f}</b> — ${e.lm} / ${e.lf}.`};},
+ // vietniekvārdi un s'appeler
+ proLvFr(){const [f,l]=pick(PRON);return mc('pro','Vietniekvārds',{q:l,...optsWith(f,PRON.map(p=>p[0])),say:f,exp:`<b>${f}</b> — ${l}. (ils — viņi vai jaukta grupa, elles — tikai viņas)`});},
+ proAppel(){const [f]=pick(PRON);const cap=f[0].toUpperCase()+f.slice(1);const r=APPEL[f];
+   return mc('pro',"Ieliec s'appeler",{q:`${cap} ____ ${NAMES[f]}.`,...optsWith(r,Object.values(APPEL)),say:`${cap} ${r} ${NAMES[f]}.`,exp:`${PRON.map(([p])=>`${p} ${APPEL[p]}`).join(' · ')}`});},
+ proBuild(){const [f]=pick(PRON.filter(p=>!['nous','vous'].includes(p[0])));const cap=f==='je'?'Je':f[0].toUpperCase()+f.slice(1);const name=NAMES[f];
+   const words=[cap,...APPEL[f].split(' ').filter(x=>x!==f),...name.split(' ').slice(0,-1),name.split(' ').slice(-1)[0]+'.'];
+   const extra=shuffle(Object.values(APPEL).filter(x=>x!==APPEL[f]&&!x.includes(' '))).slice(0,1);
+   return{sk:'pro',kind:'Saliec teikumu',t:'build',q:`${LVSAUC[f]} ${name.replace(' et ',' un ')}.`,words,bank:shuffle([...words,...extra]),say:words.join(' '),exp:`<b>${words.join(' ')}</b>`};}
+};
+
+const MODES={
+ voc:{name:'Skolas un klases lietas',ico:'🎒',sub:'Mes affaires d\'école, la classe — bilde → vārds, LV ↔ FR, rakstīšana',gens:['vocPic','vocPic','vocLvFr','vocFrLv','vocClass','vocType']},
+ col:{name:'Krāsas',ico:'🎨',sub:'Les couleurs, arī bleu ciel, rouge foncé, vert clair',gens:['colSw','colSw','colLvFr','colPick','colFav']},
+ gen:{name:'Un, une, des?',ico:'⚖️',sub:'Dzimtes: un / une / des, le / la / les',gens:['genUn','genUn','genMF','genLe']},
+ agr:{name:'Krāsa + lieta',ico:'🖍️',sub:'un crayon bleu, une gomme bleue, des règles blanches',gens:['agrPhrase','agrFill','agrFill','agrType']},
+ pos:{name:'Mon, ma, mes',ico:'💝',sub:'mon livre, ma colle, mes crayons · Mon sac est noir.',gens:['posFill','posFill','posSent','posBuild']},
+ phr:{name:'Teikumi',ico:'💬',sub:"C'est un…, Ce sont des…, Il est / Elle est…",gens:['phrCest','phrColor','phrBuild','phrBuild']},
+ emo:{name:'Les émotions',ico:'😊',sub:'content, triste, malade, fâché, fatigué',gens:['emoPick','emoPick','emoLv','emoType']},
+ pro:{name:"Je m'appelle…",ico:'🙋',sub:"je, tu, il, elle… un s'appeler",gens:['proLvFr','proAppel','proAppel','proBuild']},
+ mix:{name:'Viss kopā',ico:'🌈',sub:'Jaukti jautājumi no visām tēmām',gens:Object.keys(G)}};
+
+const LESSON={
+ voc:`<ul><li>Mācies vārdu <b>kopā ar artikulu</b>: <span class="gm">un cahier</span>, <span class="gf">une gomme</span>. Tā uzreiz zināsi dzimti!</li>
+ <li><b>Vīriešu dzimte:</b> un sac, un sac à dos, un livre, un cahier, un crayon, un stylo, un feutre, un taille-crayon.</li>
+ <li><b>Sieviešu dzimte:</b> une trousse, une gomme, une règle, une colle. <b>Daudzskaitlis:</b> des ciseaux.</li>
+ <li><b>Klasē:</b> <span class="gf">la classe</span>, <span class="gm">le tableau</span>, <span class="gm">le tableau interactif</span>, <span class="gf">la table</span>, <span class="gf">la chaise</span>, <span class="gf">la corbeille</span>.</li>
+ <li>⚠️ <b>le</b> cahier, <b>le</b> livre — vīriešu dzimte (nevis „la”).</li></ul>`,
+ col:`<ul><li>rouge · bleu · vert · jaune · noir · blanc · orange · rose · violet · gris · marron · beige</li>
+ <li>bleu ciel — gaiši zils · rouge foncé — tumši sarkans · vert clair — gaiši zaļš</li>
+ <li><b>Quelle est ta couleur préférée ?</b> — Kāda ir tava mīļākā krāsa? → <b>C'est bleu.</b></li></ul>`,
+ gen:`<ul><li>Franču valodā ir divas dzimtes: <span class="gm">vīriešu</span> un <span class="gf">sieviešu</span>.</li>
+ <li>„viens/kāds”: <span class="gm">un</span> stylo · <span class="gf">une</span> trousse · <span class="gp">des</span> stylos, des trousses (daudzsk.).</li>
+ <li>„tas/tā”: <span class="gm">le</span> stylo · <span class="gf">la</span> trousse · <span class="gp">les</span> stylos.</li>
+ <li>Daudzskaitlī lietvārdam pieliek <b>-s</b> (to neizrunā!): un sac → des sacs. Bet: un tableau → des tableau<b>x</b>.</li>
+ <li>⚠️ Dzimte ne vienmēr sakrīt ar latviešu valodu: <i>lineāls</i> → <span class="gf">une règle</span>, <i>soma</i> → <span class="gm">un sac</span>, <i>grāmata</i> → <span class="gm">un livre</span>.</li></ul>`,
+ agr:`<ul><li>Krāsa ir <b>aiz</b> lietvārda: un crayon <b>bleu</b>.</li>
+ <li>Sieviešu dzimtē pieliek <b>-e</b>: une gomme <b>bleue</b>, verte, noire, grise.</li>
+ <li>Daudzskaitlī pieliek <b>-s</b>: des sacs <b>blancs</b>; sieviešu dzimtē <b>-es</b>: des règles <b>blanches</b>, des gommes bleu<b>es</b>.</li>
+ <li>Ja krāsa jau beidzas ar -e — sieviešu dzimtē nemainās: rouge, jaune, rose, beige (une colle rouge).</li>
+ <li>Īpaši: blanc → <b>blanche</b>, violet → <b>violette</b>.</li>
+ <li><b>Nemainās nekad:</b> orange, marron (un stylo marron, une colle marron) un saliktās krāsas bleu ciel, rouge foncé, vert clair.</li></ul>`,
+ pos:`<ul><li><span class="gm">un livre → <b>mon</b> livre</span> (vīr. dz.) · <span class="gf">une colle → <b>ma</b> colle</span> (siev. dz.) · <span class="gp">des crayons → <b>mes</b> crayons</span> (daudzsk.)</li>
+ <li>Skaties uz <b>franču</b> dzimti, ne latviešu: <i>mana soma</i> → <b>mon</b> sac.</li>
+ <li><b>Mon sac est noir.</b> — Mana soma ir melna. · <b>Mes stylos sont bleus.</b> — Manas pildspalvas ir zilas.</li>
+ <li><b>C'est ma règle.</b> — Tas ir mans lineāls. · <b>Mes livres sont blancs.</b></li></ul>`,
+ phr:`<ul><li><b>Qu'est-ce que c'est ?</b> → <b>C'est un</b> crayon bleu. / <b>C'est une</b> gomme bleue.</li>
+ <li>Daudzskaitlī: <b>Ce sont des</b> sacs blancs. / <b>Ce sont des</b> règles blanches. (raksta <b>Ce</b>, nevis „Ces”)</li>
+ <li><b>De quelle couleur est le stylo ?</b> → <b>Il est</b> bleu. · la gomme → <b>Elle est</b> rose. · les ciseaux → <b>Ils sont</b> rouges. · les règles → <b>Elles sont</b> blanches.</li>
+ <li><b>C'est un sac à dos gris.</b></li></ul>`,
+ emo:`<ul><li>content / content<b>e</b> — apmierināts / -a</li><li>triste — bēdīgs / -a (nemainās)</li><li>malade — slims / -a (nemainās)</li>
+ <li>fâché / fâché<b>e</b> — dusmīgs / -a</li><li>fatigué / fatigué<b>e</b> — noguris / nogurusi</li>
+ <li><b>Je suis</b> contente. (meitene) · <b>Il est</b> fatigué. · <b>Elle est</b> fâchée.</li></ul>`,
+ pro:`<ul><li>je — es · tu — tu · il — viņš · elle — viņa · nous — mēs · vous — jūs · ils — viņi · elles — viņas</li>
+ <li><b>s'appeler</b> (sauc): je <b>m'appelle</b> · tu <b>t'appelles</b> · il / elle <b>s'appelle</b> · nous <b>nous appelons</b> · vous <b>vous appelez</b> · ils / elles <b>s'appellent</b></li>
+ <li>⚠️ appel<b>l</b>e, appel<b>l</b>es, appel<b>l</b>ent — divi l; appelons, appelez — viens l.</li></ul>`};
+LESSON.mix=LESSON.gen+LESSON.agr+LESSON.pos;
+
+/* ============ apbalvojumi: mans penālis ============ */
+const PER=10;
+const unlocked=()=>Math.floor(S.stars/PER);
+const COLLECT=(()=>{const out=[];let k=0;const cols=COLORS.map(c=>c.h);for(let r=0;r<4;r++)SCHOOLIT.forEach((it,i)=>out.push([it.w,cols[(i*3+r*5+k)%cols.length]]));return out;})();
+function trousseCard(){
+  const n=unlocked(),box=el('div','trousse');
+  const got=COLLECT.slice(0,n);
+  box.innerHTML=`<b>🎀 Mans penālis</b> <span class="muted small">— par katrām ${PER} ⭐ iekšā ieceļo jauna lieta</span>
+   <div class="row">${got.length?got.map(([w,c])=>icon(w,c)).join(''):'<span class="muted small" style="padding:12px">Vēl tukšs… nopelni pirmās 10 ⭐!</span>'}</div>
+   <div class="small">${got.length?`Lietas: <b>${got.length}</b>. `:''}Līdz nākamajai: <b>${PER-S.stars%PER}</b> ⭐</div><div class="bar"><i style="width:${(S.stars%PER)/PER*100}%"></i></div>`;
+  return box;}
+function addStars(n){const before=unlocked();S.stars+=n;save();$('#stars').textContent='⭐ '+S.stars;
+  if(unlocked()>before){const [w,c]=COLLECT[(unlocked()-1)%COLLECT.length];const col=COLORS.find(x=>x.h===c),n=np(IT[w]);const t=UN(n)+' '+frN(n)+' '+colOf(col,n);toast(`🎀 Penālī jauna lieta: ${t}!`);say(t);}}
+function toast(t){const d=el('div','toast',t);document.body.appendChild(d);setTimeout(()=>d.remove(),3000);}
+function confetti(n){for(let i=0;i<n;i++){const c=el('span','confetti',pick(['⭐','🎀','✏️','🎨','🇫🇷','✨']));c.style.left=Math.random()*100+'vw';c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),4000);}}
+
+/* ============ jautājuma attēlošana ============ */
+const norm=s=>s.toLowerCase().replace(/[’`]/g,"'").replace(/[.!?]/g,'').replace(/\s+/g,' ').trim();
+const noAcc=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'');
+function renderQ(host,q,free,onDone){
+  const card=el('div','task');host.appendChild(card);
+  card.appendChild(el('div','kind',q.kind));
+  if(q.sw)card.insertAdjacentHTML('beforeend',`<div class="swatch-big" style="background:${q.sw}"></div>`);
+  if(q.pic)card.insertAdjacentHTML('beforeend',q.pic);
+  const pr=el('div','prompt');pr.innerHTML=`<span>${q.q}</span>`;if(q.sayQ)pr.appendChild(sayBtn(q.sayQ));card.appendChild(pr);
+  if(q.sayQ&&!free)setTimeout(()=>say(q.sayQ),250);
+  const fb=el('div','fb');fb.style.display='none';
+  let answered=false;
+  const finish=(ok,note)=>{if(answered)return;answered=true;
+    fb.style.display='';fb.className='fb '+(ok?'ok':'bad');
+    fb.innerHTML=(ok?'✓ <b>'+pick(['Bravo !','Super !','Très bien !','Excellent !','Parfait !'])+'</b> ':'✗ <b>Pareizi:</b> <span class="fr">'+esc(q.say)+'</span> ')+(note?'<br>'+note:'')+(free&&ok?'':'<br>'+q.exp);
+    fb.appendChild(sayBtn(q.say));if(ok||!free)say(q.say);
+    onDone(ok);};
+  if(q.t==='mc'){const g=el('div','opts');q.opts.forEach((o,i)=>{const b=el('button','opt',o);b.onclick=()=>{g.querySelectorAll('button').forEach(x=>x.disabled=true);
+      if(i===q.ans){b.classList.add('right');finish(true);}else{b.classList.add('wrong');g.children[q.ans].classList.add('right');finish(false);}};g.appendChild(b);});card.appendChild(g);}
+  else if(q.t==='sw'){const g=el('div','swopts');q.swatches.forEach((h,i)=>{const b=el('button','sw');b.style.background=h;b.setAttribute('aria-label','krāsa '+(i+1));b.onclick=()=>{if(answered)return;
+      if(i===q.ans){b.classList.add('right');finish(true);}else{b.classList.add('wrong');g.children[q.ans].classList.add('right');finish(false);}};g.appendChild(b);});card.appendChild(g);}
+  else if(q.t==='type'){const box=el('div','typebox');box.appendChild(el('span','pre',q.pre));const inp=el('input');inp.autocomplete='off';inp.autocapitalize='off';inp.spellcheck=false;inp.placeholder='…';box.appendChild(inp);card.appendChild(box);
+    const ac=el('div','accents');['é','è','ê','à','â','ç','-',"'"].forEach(ch=>{const b=el('button','',ch);b.onclick=()=>{const p=inp.selectionStart??inp.value.length;inp.value=inp.value.slice(0,p)+ch+inp.value.slice(p);inp.focus();inp.setSelectionRange(p+1,p+1);};ac.appendChild(b);});card.appendChild(ac);
+    const go=btn('Pārbaudīt ✓','primary',()=>{if(answered)return;let v=norm(inp.value);if(!v)return;const pre=norm(q.pre);if(v.startsWith(pre+' '))v=v.slice(pre.length+1);
+      const a=norm(q.ans);inp.disabled=true;go.remove();
+      if(v===a){inp.classList.add('okk');finish(true);}
+      else if(noAcc(v)===noAcc(a)){inp.classList.add('okk');finish(true,`⚠️ Uzmanies uz akcentu: pareizi raksta <b>${esc(q.ans)}</b>.`);}
+      else{inp.classList.add('bad');finish(false);}});
+    inp.onkeydown=e=>{if(e.key==='Enter')go.click();};card.appendChild(go);setTimeout(()=>inp.focus(),50);}
+  else if(q.t==='build'){const line=el('div','line'),bank=el('div','bank');const chosen=[];
+    const draw=()=>{line.innerHTML='';if(!chosen.length)line.innerHTML='<span class="muted small" style="padding:0 6px">Spied uz vārdiem pareizā secībā…</span>';
+      chosen.forEach((idx,k)=>{const b=el('button','wt',q.bank[idx]);b.onclick=()=>{if(answered)return;chosen.splice(k,1);bank.children[idx].classList.remove('used');draw();};line.appendChild(b);});};
+    q.bank.forEach((w,idx)=>{const b=el('button','wt',w);b.onclick=()=>{if(answered||b.classList.contains('used'))return;chosen.push(idx);b.classList.add('used');draw();};bank.appendChild(b);});
+    draw();card.append(line,bank);
+    const go=btn('Pārbaudīt ✓','primary',()=>{if(answered||!chosen.length)return;go.remove();const v=chosen.map(i=>q.bank[i]).join(' ');finish(norm(v)===norm(q.words.join(' ')));});card.appendChild(go);}
+  card.appendChild(fb);
+  return card;
+}
+
+/* ============ skati ============ */
+const main=$('#main');
+function topbar(title,back){const t=el('div','topbar');t.appendChild(btn('← Atpakaļ','small',back||home));t.appendChild(el('h2','',title));main.appendChild(t);}
+function clear(){main.innerHTML='';window.scrollTo(0,0);try{speechSynthesis.cancel();}catch(e){}}
+
+function home(){
+  clear();
+  const h=el('div','hero');const last=S.tests[S.tests.length-1];
+  h.innerHTML=`<b>Bonjour ! 👋</b> Te trenējam 2. nodaļu <b>„À l'école”</b>: skolas un klases lietas, krāsas, dzimtes (<span class="gm">un</span> / <span class="gf">une</span> / <span class="gp">des</span>), <b>mon / ma / mes</b>, emocijas un <i>s'appeler</i> — viss no tavas burtnīcas. Sāc ar <b>📖 Vārdnīcu</b>, tad spēlē tēmas, un beigās pamēģini <b>📝 formatīvo darbu</b>.`+
+   (last?`<div class="muted small" style="margin-top:4px">Pēdējais formatīvā darba treniņš: <b>${last.pts}/${last.max}</b> (${Math.round(last.pts/last.max*100)}%), ${last.date}</div>`:'');
+  main.appendChild(h);main.appendChild(trousseCard());
+  const tiles=el('div','tiles');
+  const add=(ico,t,s,f,cls)=>{const b=el('button','tile '+(cls||''));b.innerHTML=`<div class="ico">${ico}</div><div class="t">${t}</div><div class="s">${s}</div>`;b.onclick=f;tiles.appendChild(b);};
+  add('📖','Vārdnīca','Visi vārdi ar bildēm un izrunu — mācies vispirms!',viewDict);
+  Object.entries(MODES).forEach(([k,m])=>add(m.ico,m.name,m.sub+(S.stats[k]?` · ✓ ${S.stats[k]}`:''),()=>practice(k)));
+  add('🔁','Kļūdu labošana',S.mist.length?`${S.mist.length} jautājumi, kuros kļūdījies`:'Kļūdu nav — super!',()=>S.mist.length?practice('mist'):toast('Kļūdu sarakstā nav nekā 🎉'));
+  add('📝','Formatīvā darba treniņš','24 jautājumi, bez padomiem — kā stundā. Beigās redzi, kas jau padodas.',viewTest,'test wide');
+  main.appendChild(tiles);
+}
+
+function viewDict(){
+  clear();topbar('Vārdnīca — À l\'école');
+  main.appendChild(el('p','muted small','Spied uz kartītes, lai dzirdētu. Zils — vīriešu dzimte (un / le), sarkans — sieviešu dzimte (une / la), violets — daudzskaitlis (des / les).'));
+  const sec=(title,list,useLe)=>{main.appendChild(el('h2','',title));const d=el('div','dict');
+    list.forEach(it=>{const n=np(it),a=useLe?LE(n):UN(n);const c=el('button','card');c.innerHTML=`<div class="pic">${icon(it.w)}</div><div class="w ${gcls(n)}">${a} ${frN(n)}</div><div class="small ${gcls(n)}">${useLe?UN(n):LE(n)} ${frN(n)}${n.p?'':' · '+MON(n)+' '+it.w}</div><div class="lv">${esc(it.lv)}</div>`;
+      c.onclick=()=>{const s=S.sound;S.sound=true;say(a+' '+frN(n));S.sound=s;};d.appendChild(c);});main.appendChild(d);};
+  sec("🎒 Mes affaires d'école — manas skolas lietas",SCHOOLIT,false);
+  sec('🏫 Dans la classe — klasē',ITEMS.filter(i=>i.c==='class'),true);
+  main.appendChild(el('h2','','🎨 Les couleurs — krāsas'));
+  const r=el('div','colrow');
+  COLORS.forEach(c=>{const b=el('button','colcard');b.innerHTML=`<span class="dot" style="background:${c.h}"></span><span><b>${c.m}</b>${c.f!==c.m?` / <span class="gf">${c.f}</span>`:''}<br><span class="muted small">${c.lv}${c.inv?' · nemainās':''}</span></span>`;
+    b.onclick=()=>{const s=S.sound;S.sound=true;say(c.m===c.f?c.m:c.m+', '+c.f);S.sound=s;};r.appendChild(b);});
+  main.appendChild(r);
+  main.appendChild(el('h2','','😊 Les émotions — emocijas'));
+  const er=el('div','colrow');
+  EMO.forEach(e=>{const b=el('button','colcard');b.innerHTML=`<span style="font-size:34px">${e.e}</span><span><b class="gm">${e.m}</b>${e.f!==e.m?` / <b class="gf">${e.f}</b>`:''}<br><span class="muted small">${e.lm} / ${e.lf}</span></span>`;
+    b.onclick=()=>{const s=S.sound;S.sound=true;say(e.m===e.f?e.m:e.m+', '+e.f);S.sound=s;};er.appendChild(b);});
+  main.appendChild(er);
+  [['💝 Mon, ma, mes',LESSON.pos],["🙋 Vietniekvārdi un s'appeler",LESSON.pro]].forEach(([t,h])=>{const l=el('details','lesson');l.open=true;l.innerHTML=`<summary>${t}</summary>${h}`;main.appendChild(l);});
+  const l=el('details','lesson');l.open=true;l.innerHTML='<summary>💬 Teikumi, kas jāzina</summary>'+LESSON.phr;main.appendChild(l);
+}
+
+function practice(mode){
+  clear();
+  const isMist=mode==='mist',M=MODES[mode];
+  topbar(isMist?'Kļūdu labošana':M.ico+' '+M.name);
+  if(!isMist){const d=el('details','lesson');d.innerHTML='<summary>📖 Kā to dara?</summary>'+LESSON[mode];main.appendChild(d);}
+  const N=isMist?Math.min(10,S.mist.length):10;
+  const qs=isMist?S.mist.slice(0,N):Array.from({length:N},()=>G[pick(M.gens)]());
+  let i=0,good=0;const host=el('div');main.appendChild(host);
+  function next(){
+    host.innerHTML='';
+    if(i>=N){return finishRound();}
+    const q=qs[i];
+    host.insertAdjacentHTML('beforeend',`<div class="progress"><span>Jautājums ${i+1} / ${N}</span><span>✓ ${good}</span></div><div class="pbar"><i style="width:${i/N*100}%"></i></div>`);
+    renderQ(host,q,false,ok=>{
+      if(ok){good++;addStars(1);if(isMist)S.mist=S.mist.filter(x=>JSON.stringify(x)!==JSON.stringify(q));}
+      else if(!isMist){S.mist.unshift(q);S.mist=S.mist.slice(0,40);}
+      else{S.mist=S.mist.filter(x=>JSON.stringify(x)!==JSON.stringify(q));S.mist.push(q);}
+      if(!isMist&&ok){S.stats[mode]=(S.stats[mode]||0)+1;}
+      save();
+      const a=el('div','actions');a.appendChild(btn(i<N-1?'Tālāk →':'Beigt raundu','primary',()=>{i++;next();}));host.lastChild.appendChild(a);
+      a.querySelector('button').focus();});
+  }
+  function finishRound(){
+    if(good===N){addStars(3);confetti(40);}
+    const b=el('div','done');b.innerHTML=`<div class="big">${good} / ${N}</div><div>${good===N?'Parfait ! Bez kļūdām — vēl +3 ⭐ bonuss!':good>=7?'Très bien ! Vēl mazliet, un būs perfekti.':'Turpini trenēties — katru reizi sanāks labāk! 💪'}</div>`;
+    host.appendChild(b);const a=el('div','actions');
+    if(!isMist)a.appendChild(btn('Vēl vienu raundu ▶','primary',()=>practice(mode)));
+    if(S.mist.length)a.appendChild(btn(`🔁 Labot kļūdas (${S.mist.length})`,'',()=>practice('mist')));
+    a.appendChild(btn('Uz sākumu','',home));host.appendChild(a);
+  }
+  next();
+}
+
+function viewTest(){
+  clear();topbar('📝 Formatīvā darba treniņš');
+  const plan=['vocPic','vocPic','vocLvFr','vocClass','vocType','colSw','colSw','colLvFr','colFav','genUn','genUn','genLe','genLe','agrPhrase','agrPhrase','agrFill','agrType','posFill','posSent','posBuild','phrCest','phrColor','emoPick','emoLv'];
+  // bez atkārtojumiem: katrai lietai/krāsai — cik iespējams dažādi
+  const qs=[];const seen=new Set();plan.forEach(g=>{let q,t=0;do{q=G[g]();t++;}while(seen.has(q.q)&&t<20);seen.add(q.q);qs.push(q);});
+  const host=el('div');main.appendChild(host);
+  host.innerHTML=`<div class="hero">Kā stundā: <b>24 jautājumi</b> — skolas un klases lietas (5), krāsas (4), un / une / des un le / la / les (4), krāsas saskaņošana (4), mon / ma / mes (3), teikumi (2), emocijas (2). <b>Padomu nav</b>, katram jautājumam viens mēģinājums. Ja kaut ko aizmirsi — vispirms ieskaties <b>📖 Vārdnīcā</b>.</div>`;
+  host.appendChild(btn('Sākt ▶','primary',run));
+  let i=0;const res=[];
+  function run(){
+    host.innerHTML='';window.scrollTo(0,0);
+    if(i>=qs.length)return summary();
+    host.insertAdjacentHTML('beforeend',`<div class="progress"><span>Jautājums ${i+1} / ${qs.length}</span><span>${SK[qs[i].sk]}</span></div><div class="pbar"><i style="width:${i/qs.length*100}%"></i></div>`);
+    renderQ(host,qs[i],true,ok=>{res[i]=ok;const a=el('div','actions');a.appendChild(btn(i<qs.length-1?'Tālāk →':'Rādīt rezultātu','primary',()=>{i++;run();}));host.lastChild.appendChild(a);});
+  }
+  function summary(){
+    const pts=res.filter(Boolean).length,max=qs.length,pct=Math.round(pts/max*100);
+    S.tests.push({date:new Date().toLocaleDateString('lv-LV'),pts,max});
+    qs.forEach((q,j)=>{if(!res[j]&&!S.mist.some(x=>JSON.stringify(x)===JSON.stringify(q)))S.mist.unshift(q);});S.mist=S.mist.slice(0,40);
+    save();addStars(pts);if(pct>=80)confetti(50);
+    host.innerHTML='';
+    host.insertAdjacentHTML('beforeend',`<div class="done"><div class="big">${pts} / ${max}</div><div><b>${pct}%</b> — ${pct>=90?'Excellent ! Esi gatava formatīvajam darbam! 🎉':pct>=70?'Très bien ! Atkārto to, kas tabulā dzeltens vai sarkans.':'Vēl jātrenējas — izmanto 🔁 Kļūdu labošanu un tēmu spēles.'}</div></div>`);
+    const tag=(p,m)=>p===m?'<span class="tag g">Protu</span>':p*2>=m?'<span class="tag y">Protu daļēji</span>':'<span class="tag r">Vēl jāmācās</span>';
+    const rows=Object.entries(SK).map(([k,n],idx)=>{const ix=qs.map((q,j)=>q.sk===k?j:-1).filter(j=>j>=0);const p=ix.filter(j=>res[j]).length;return `<tr><td>${idx+1}. ${n}</td><td class="c">${p}/${ix.length}</td><td>${tag(p,ix.length)}</td></tr>`;}).join('');
+    const t=el('table','res');t.innerHTML='<tr><th>Prasme</th><th>Punkti</th><th></th></tr>'+rows;host.appendChild(t);
+    const wrong=qs.filter((q,j)=>!res[j]);
+    if(wrong.length){host.appendChild(el('p','',`Kļūdas: ${wrong.length}. Tās ieliku 🔁 Kļūdu labošanā — izspēlē tās vēlreiz!`));
+      const ul=el('ul','small');wrong.forEach(q=>{const li=el('li');li.innerHTML=`${q.q} → <b class="fr">${esc(q.say)}</b>`;ul.appendChild(li);});host.appendChild(ul);}
+    const a=el('div','actions');if(wrong.length)a.appendChild(btn('🔁 Labot kļūdas','primary',()=>practice('mist')));a.appendChild(btn('Vēlreiz','',viewTest));a.appendChild(btn('Uz sākumu','',home));host.appendChild(a);
+  }
+}
+
+function viewHelp(){
+  clear();topbar('Kā spēlēt?');
+  const b=el('div','hero');b.innerHTML=`<p><b>Bonjour !</b> Šī spēle palīdz sagatavoties franču valodas 2. nodaļas <b>„À l'école”</b> formatīvajam darbam. Visi vārdi un teikumi ņemti no tavas burtnīcas.</p>
+  <ul><li><b>📖 Vārdnīca</b> — visas skolas lietas un krāsas ar bildēm. Spied, lai dzirdētu izrunu.</li>
+  <li><b>🎒 🎨 ⚖️ 🖍️ 💝 💬 😊 🙋</b> — tēmas. Katrā raundā 10 jautājumi. Pēc katras atbildes redzēsi, <b>kāpēc</b> tā ir pareizi.</li>
+  <li>Krāsas burtiem: <span class="gm">zils — vīriešu dzimte</span>, <span class="gf">sarkans — sieviešu dzimte</span>, <span class="gp">violets — daudzskaitlis</span>.</li>
+  <li>Kur jāraksta — zem lodziņa ir pogas <b>é è ê à ç</b> burtiem ar akcentiem.</li>
+  <li>Par katru pareizu atbildi ⭐, par raundu bez kļūdām vēl +3 ⭐. Par katrām 10 ⭐ tavā <b>🎀 penālī</b> ieceļo jauna lieta!</li>
+  <li>Kļūdas saglabājas <b>🔁 Kļūdu labošanā</b> — izspēlē tās, kamēr saraksts tukšs.</li>
+  <li><b>📝 Formatīvā darba treniņš</b> — 24 jautājumi bez padomiem; beigās tabula „Protu / Protu daļēji / Vēl jāmācās”.</li>
+  <li>🔊 augšā ieslēdz vai izslēdz skaņu.</li></ul>
+  <p><b>Padoms:</b> 10 minūtes katru dienu ir labāk nekā stunda vienā vakarā. Bon courage ! 💪</p>`;
+  main.appendChild(b);main.appendChild(btn('Sapratu — sākam! ▶','primary',()=>{S.seen=true;save();home();}));
+}
+
+$('#home').onclick=home;
+const sndBtn=$('#snd');const sndTxt=()=>sndBtn.textContent=S.sound?'🔊':'🔇';sndTxt();
+sndBtn.onclick=()=>{S.sound=!S.sound;save();sndTxt();};
+$('#stars').textContent='⭐ '+S.stars;
+S.seen?home():viewHelp();
+</script>
+</body>
+</html>
