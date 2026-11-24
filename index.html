@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ma trousse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#fff7f2; --surface:#ffffff; --surface2:#fdeee6; --ink:#2b2140; --muted:#6f6687; --line:#f0dcd2;
@@ -25,7 +25,7 @@
   --m:#6aa8ff; --f:#ff7aa6; --pl:#c18bff; --gold:#ffc53d; --card:#fbf7ef;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-size:19px;line-height:1.4}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,-apple-system,sans-serif;font-size:19px;line-height:1.4}
 .wrap{max-width:760px;margin:0 auto;padding:10px 16px 90px}
 header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 12px;border-bottom:2px solid var(--line);margin-bottom:14px}
 header h1{font-size:24px;margin:0;flex:1;cursor:pointer;white-space:nowrap}
@@ -80,6 +80,17 @@ details.lesson li{margin:3px 0}
 .typebox .pre{font-size:22px;font-weight:800}
 .typebox input{font:inherit;font-size:22px;font-weight:700;padding:8px 12px;border-radius:14px;border:3px solid var(--accent2);background:var(--bg);color:var(--ink);min-width:0;flex:1;max-width:320px}
 .typebox input.okk{border-color:var(--ok)}.typebox input.bad{border-color:var(--bad)}
+.micstage{display:flex;align-items:center;gap:16px;margin:14px 0 4px;flex-wrap:wrap}
+.micbig{--lvl:0;width:92px;height:92px;border-radius:50%;border:0;font-size:40px;cursor:pointer;background:var(--accent);color:#fff;flex:none;
+  box-shadow:0 0 0 calc(6px + var(--lvl) * 26px) rgba(239,71,111,.22);transition:box-shadow .08s,transform .1s}
+.micbig:active{transform:scale(.95)}.micbig.on{background:#d62839}.micbig.busy{background:var(--muted);animation:spin 1.2s linear infinite}
+@keyframes spin{50%{transform:scale(.92)}}
+.micstate{flex:1;min-width:200px;font-size:18px}
+.micstate .bar{height:10px;border:2px solid var(--line);border-radius:999px;overflow:hidden;margin:6px 0}.micstate .bar>i{display:block;height:100%;background:var(--accent2)}
+.score{display:flex;align-items:center;gap:10px;margin-top:6px}.score .bar{flex:1;height:12px;border-radius:999px;border:2px solid var(--line);overflow:hidden;margin:0}
+.score .bar>i{display:block;height:100%;background:var(--gold)}.score .bar.g>i{background:var(--ok)}
+.sayw{font-size:22px;margin-top:4px}.phon{background:var(--surface2);border-radius:12px;padding:6px 12px;margin:6px 0;font-size:17px}
+.fr.big{font-size:32px}
 .typebox.long input{max-width:none;width:100%;font-size:20px}
 .wok{color:var(--ok);font-weight:800}.wbad{color:var(--bad);font-weight:800;text-decoration:underline wavy}
 .saybox .actions{margin-top:6px}.heard{margin-top:10px;font-size:18px;background:var(--surface2);border-radius:12px;padding:8px 12px}
@@ -502,63 +513,153 @@ function diffHTML(user,target){const ur=norm(user).split(' ').filter(Boolean),a=
   return `Tu uzrakstīji: ${ur.map((w,i)=>`<span class="${r.ia.has(i)?'wok':'wbad'}">${esc(w)}</span>`).join(' ')}`+
    (b.some((w,j)=>!r.ib.has(j))?`<br>Trūka vai bija citādi: ${tr.filter((w,j)=>!r.ib.has(j)).map(w=>`<b>${esc(w)}</b>`).join(', ')}`:'');}
 
-/* --- runāšanas uzdevums --- */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const ALLCOL=new Set(COLORS.flatMap(c=>[c.m,c.f].map(x=>noAcc(x))).concat(COLORS.flatMap(c=>c.m.split(' '))));
-function spokenOK(q,heard){const a=wordsOf(heard),b=wordsOf(q.target);
-  if(q.anyColor)return a.join(' ').startsWith("c'est")&&a.slice(1).some(w=>ALLCOL.has(w));
-  if(q.prefix)return a.join(' ').startsWith(b.join(' '));
-  const need=b.length>=4?b.length-1:b.length;return lcs(a,b).len>=need;}
+/* --- runāšanas uzdevums: ieraksts ar automātisku apstāšanos + Whisper pārlūkā --- */
+const ASR_MODEL='Xenova/whisper-base',ASR_LIB='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
+let ASR=null,asrPromise=null;const asrProg={};let asrListeners=[];
+function asrPct(){const v=Object.values(asrProg);if(!v.length)return 0;const l=v.reduce((a,x)=>a+x.l,0),t=v.reduce((a,x)=>a+x.t,0);return t?Math.round(l/t*100):0;}
+function loadASR(){
+  if(ASR)return Promise.resolve(ASR);if(asrPromise)return asrPromise;
+  asrPromise=(async()=>{const T=await import(ASR_LIB);T.env.allowLocalModels=false;
+    ASR=await T.pipeline('automatic-speech-recognition',ASR_MODEL,{progress_callback:p=>{
+      if(p.status==='progress'&&p.total){asrProg[p.file]={l:p.loaded,t:p.total};asrListeners.forEach(f=>f(asrPct()));}}});
+    return ASR;})();
+  asrPromise.catch(()=>{asrPromise=null;});
+  return asrPromise;}
+// ieraksta vienu izteikumu: sāk, kad dzird balsi, beidz pēc klusuma
+async function recordUtterance(onLevel,onState,opt={}){
+  const silenceMs=opt.silenceMs||900,maxMs=opt.maxMs||8000,waitMs=opt.waitMs||7000;
+  const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();try{await ctx.resume();}catch(e){}
+  const src=ctx.createMediaStreamSource(stream),proc=ctx.createScriptProcessor(2048,1,1),sr=ctx.sampleRate;
+  const chunks=[];let started=false,startIdx=0,lastVoice=0,noise=0,nN=0,voiced=0;const t0=performance.now();
+  return await new Promise(resolve=>{
+    let fin=false;
+    const stop=reason=>{if(fin)return;fin=true;try{proc.disconnect();src.disconnect();}catch(e){}stream.getTracks().forEach(t=>t.stop());try{ctx.close();}catch(e){}
+      if(reason!=='speech'){resolve({reason});return;}
+      const sel=chunks.slice(Math.max(0,startIdx-6));const len=sel.reduce((a,c)=>a+c.length,0),all=new Float32Array(len);let o=0;sel.forEach(c=>{all.set(c,o);o+=c.length;});
+      resolve({reason,audio:resample(all,sr,16000)});};
+    proc.onaudioprocess=e=>{if(fin)return;const d=new Float32Array(e.inputBuffer.getChannelData(0));chunks.push(d);
+      let s=0;for(let i=0;i<d.length;i++)s+=d[i]*d[i];const rms=Math.sqrt(s/d.length),now=performance.now();
+      if(now-t0<350){noise=(noise*nN+rms)/(nN+1);nN++;onLevel&&onLevel(0);return;}
+      const thr=Math.max(0.012,noise*3.2);onLevel&&onLevel(Math.min(1,rms/(thr*4)));
+      if(rms>thr){voiced++;if(!started&&voiced>=2){started=true;startIdx=chunks.length-2;onState&&onState('speaking');}lastVoice=now;}else voiced=0;
+      if(started&&now-lastVoice>silenceMs)stop('speech');
+      else if(started&&now-t0>maxMs)stop('speech');
+      else if(!started&&now-t0>waitMs)stop('nospeech');};
+    src.connect(proc);proc.connect(ctx.destination);onState&&onState('listening');
+  });}
+function resample(x,from,to){if(from===to)return x;const r=from/to,n=Math.floor(x.length/r),y=new Float32Array(n);
+  for(let i=0;i<n;i++){const a=Math.floor(i*r),b=Math.min(x.length,Math.floor((i+1)*r));let s=0;for(let j=a;j<b;j++)s+=x[j];y[i]=s/Math.max(1,b-a);}return y;}
+
+/* --- salīdzināšana ar pielaidi --- */
+const spNorm=s=>noAcc(String(s).toLowerCase()).replace(/[’'`]/g,'').replace(/[^a-z0-9\s-]/g,' ').replace(/-/g,' ').replace(/\s+/g,' ').trim();
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+const sim=(a,b)=>1-lev(a,b)/Math.max(a.length,b.length,1);
+const ARTS=['un','une','le','la','les','des','ma','mon','mes','il','elle','ils','elles','est','sont','je','tu'];
+function phon(w){let s=noAcc(w.toLowerCase()).replace(/[^a-z]/g,'');
+  s=s.replace(/eau|au/g,'o').replace(/ou/g,'u').replace(/oi/g,'ua').replace(/ai|ei/g,'e').replace(/qu/g,'k').replace(/ch/g,'s').replace(/ph/g,'f')
+   .replace(/g(?=[eiy])/g,'j').replace(/c(?=[eiy])/g,'s').replace(/c/g,'k').replace(/h/g,'').replace(/y/g,'i')
+   .replace(/(an|en|am|em)(?![aeiou])/g,'A').replace(/(on|om)(?![aeiou])/g,'O').replace(/(ain|ein|in|im|un)(?![aeiou])/g,'E')
+   .replace(/(.)\1+/g,'$1');
+  s=s.replace(/e$/,'').replace(/[stdxz]$/,'').replace(/e$/,'');return s||w;}
+const wEq=(a,b)=>{if(a===b)return true;if(ARTS.includes(a)||ARTS.includes(b))return false;const pa=phon(a),pb=phon(b);return pa===pb||sim(pa,pb)>=(Math.max(pa.length,pb.length)<=3?.66:.7);};
+function spScore(target,heard){const t=spNorm(target).split(' ').filter(Boolean),h=spNorm(heard).split(' ').filter(Boolean);
+  // LCS ar pielaidi
+  const m=t.length,n=h.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=wEq(t[i],h[j])?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
+  const ok=new Set();let i=0,j=0;while(i<m&&j<n){if(wEq(t[i],h[j])){ok.add(i);i++;j++;}else if(d[i+1][j]>=d[i][j+1])i++;else j++;}
+  let score=m?ok.size/m:0;
+  if(m===1&&n){const pt=phon(t[0]);score=Math.max(score,...h.map(w=>sim(phon(w),pt)),sim(phon(h.join('')),pt));}
+  return{score,ok,tw:spNorm(target).split(' ').filter(Boolean),orig:String(target).replace(/[.?!]/g,'').split(/\s+/).filter(Boolean)};}
+const COLWORDS=new Set(COLORS.flatMap(c=>[c.m,c.f,...c.m.split(' ')].map(spNorm)));
+function spJudge(q,heard){
+  if(q.anyColor){const h=spNorm(heard).split(' ');const ok=h.some(w=>w==='cest'||sim(w,'cest')>=.75)&&h.some(w=>COLWORDS.has(w));return{pass:ok,score:ok?1:0};}
+  if(q.prefix){const r=spScore(q.target,heard.split(/\s+/).slice(0,3).join(' '));return{pass:r.score>=.66,score:r.score};}
+  const r=spScore(q.target,heard);const need=r.tw.length<=2?.99:r.tw.length===3?.66:r.tw.length===4?.74:.79;
+  return{pass:r.score>=need||(r.tw.length===1&&r.score>=.6),score:r.score,r};}
+
+/* --- izrunas padomi pēc burtu kombinācijām --- */
+const PHON=[['eau','o'],['au','o'],['oi','ua'],['ou','u'],['ch','š'],['qu','k'],['gn','ņ'],['ai','e'],['ei','e'],['eu','ö'],['ill','ij'],['on','caur degunu'],['an','caur degunu'],['en','caur degunu'],['in','caur degunu'],['é','e'],['è','e'],['ç','s']];
+function phonTips(t){const s=t.toLowerCase(),out=[];PHON.forEach(([k,v])=>{if(s.includes(k)&&!out.some(o=>o[0].includes(k)))out.push([k,v]);});
+  const fin=s.replace(/[.?!]/g,'').split(/\s+/).filter(w=>/[sdtxz]$/.test(w)&&!/^(est|et)$/.test(w));
+  let h=out.slice(0,4).map(([k,v])=>`<b>${k}</b> = ${v}`).join(' · ');
+  if(fin.length)h+=(h?' · ':'')+`beigu burtu neizrunā: ${fin.slice(0,3).map(w=>w.replace(/([sdtxz])$/,'<s>$1</s>')).join(', ')}`;
+  return h;}
+
 function renderSay(card,q,finish){
   const box=el('div','saybox');card.appendChild(box);
+  if(q.read){const tip=phonTips(q.target);if(tip)box.insertAdjacentHTML('beforeend',`<div class="phon">🗣️ ${tip}</div>`);}
   const row=el('div','actions');
   const listen=btn('🔊 Paklausies','',()=>{const s=S.sound;S.sound=true;say(q.say);S.sound=s;});
-  const show=btn('👀 Rādīt','small',()=>{show.replaceWith(el('div','fr',q.target+(q.prefix?' …':q.anyColor?' …':'')));});
-  let tries=0;
-  const done=(ok,note)=>{row.remove();finish(ok,note);};
-  if(!SR){
-    box.innerHTML='<div class="fb tip">Šajā pārlūkā mikrofona pārbaude nedarbojas (vislabāk — Chrome vai Safari). Pasaki skaļi, tad paklausies pareizo un novērtē sevi pati!</div>';
-    row.append(listen,btn('✓ Pateicu pareizi','primary',()=>done(true)),btn('✗ Vēl jātrenē','',()=>done(false)));box.appendChild(row);return;}
-  const ua=navigator.userAgent,isSafari=/Safari/.test(ua)&&!/Chrome|CriOS|Edg|FxiOS/.test(ua);
-  const helpTxt=isSafari?'Safari runu atpazīst tikai tad, ja ieslēgta <b>Diktēšana</b>: Mac — Sistēmas iestatījumi → Tastatūra → Diktēšana; iPad — Iestatījumi → Vispārīgi → Tastatūra → Iespējot diktēšanu. Vislabāk strādā <b>Chrome</b>.'
-    :'Pārbaudi, vai pārlūkam atļauts mikrofons (adreses joslā 🔒 → Mikrofons → Atļaut; Mac — Sistēmas iestatījumi → Privātums un drošība → Mikrofons → Chrome).';
-  const status=el('div','heard');status.style.display='none';
+  row.appendChild(listen);
+  if(!q.read){const show=btn('👀 Rādīt','small',()=>{show.replaceWith(el('span','fr',q.target+(q.prefix||q.anyColor?' …':'')));});row.appendChild(show);}
+  row.appendChild(btn('Izlaist →','small',()=>{cancelled=true;done(false);}));
+  const stage=el('div','micstage');
+  const mic=el('button','micbig');mic.innerHTML='🎤';mic.setAttribute('aria-label','Runāt');
+  const st=el('div','micstate','Spied 🎤 un runā — es pats sapratīšu, kad beidz.');
+  const heard=el('div','heard');heard.style.display='none';
   const selfRow=el('div','actions');selfRow.style.display='none';
-  selfRow.append(el('span','small muted','Ja mikrofons nesadarbojas — pasaki skaļi, paklausies 🔊 un novērtē pati:'),btn('✓ Pateicu pareizi','primary',()=>{selfRow.remove();done(true);}),btn('✗ Vēl jātrenē','',()=>{selfRow.remove();done(false);}));
-  let rec=null,active=false,best='',evaluated=false,fails=0,timer=null,audioTimer=null;
-  const setStatus=h=>{status.style.display='';status.innerHTML=h;};
-  const reset=()=>{active=false;clearTimeout(timer);clearTimeout(audioTimer);mic.textContent='🎤 Runā vēlreiz';mic.classList.remove('rec');};
-  const evaluate=alts=>{if(evaluated)return;evaluated=true;
-    const hit=alts.find(t=>spokenOK(q,t));
-    if(hit){setStatus(`Dzirdēju: «<b>${esc(hit)}</b>»`);selfRow.remove();done(true);return;}
-    tries++;setStatus(`Dzirdēju: «${esc(alts[0])}». `+(tries<3?'Vēl mēģini! Paklausies 🔊 un atkārto lēnām.':''));
-    if(tries>=3){selfRow.remove();done(false,'Nekas — paklausies un mēģini vēlreiz nākamajā raundā.');}};
-  const noResult=msg=>{fails++;setStatus(msg+(fails>=1?`<br><span class="small">${helpTxt}</span>`:''));selfRow.style.display='';};
-  const mic=btn('🎤 Runā','primary',()=>{
-    if(active){try{rec.stop();}catch(e){}return;}
-    try{rec=new SR();}catch(e){noResult('Mikrofons šajā pārlūkā nav pieejams.');return;}
-    rec.lang='fr-FR';rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=5;
-    best='';evaluated=false;active=true;
-    mic.textContent='⏹ Gatavs';mic.classList.add('rec');
-    setStatus('⏳ Ieslēdzu mikrofonu…');
-    rec.onaudiostart=()=>{clearTimeout(audioTimer);setStatus('🎙️ Mikrofons ieslēgts — <b>runā tagad!</b> Kad pabeidz, spied ⏹ Gatavs.');};
-    rec.onspeechstart=()=>setStatus('👂 Dzirdu…');
-    rec.onresult=e=>{const r=e.results[e.results.length-1];const alts=[...r].map(x=>x.transcript);best=alts[0]||best;
-      if(r.isFinal){evaluate(alts);try{rec.stop();}catch(x){}}else setStatus(`👂 Dzirdu: «${esc(best)}»`);};
-    rec.onerror=e=>{const er=e.error;
-      if(er==='not-allowed'||er==='service-not-allowed')noResult('⚠️ Pārlūks neļauj lietot mikrofonu vai runas atpazīšanu.');
-      else if(er==='no-speech')noResult('Neko nedzirdēju — runā skaļāk un tuvāk mikrofonam.');
-      else if(er==='network')noResult('⚠️ Runas atpazīšanai vajag internetu — pārbaudi savienojumu.');
-      else if(er==='audio-capture')noResult('⚠️ Mikrofons nav atrasts.');
-      else if(er!=='aborted')noResult('Neizdevās noklausīties ('+esc(er)+').');};
-    rec.onend=()=>{const was=active;reset();if(!evaluated){if(best)evaluate([best]);else if(was&&status.innerHTML.indexOf('⚠️')<0&&status.innerHTML.indexOf('Neko')<0)noResult('Neko nesadzirdēju.');}};
-    audioTimer=setTimeout(()=>{if(active)setStatus('Mikrofons vēl neieslēdzās…<br><span class="small">'+helpTxt+'</span>');selfRow.style.display='';},4000);
-    timer=setTimeout(()=>{if(active){try{rec.stop();}catch(e){}}},10000);
-    try{speechSynthesis.cancel();rec.start();}catch(e){reset();noResult('Neizdevās ieslēgt mikrofonu.');}
-  });
-  row.append(listen,mic,show,btn('Izlaist →','small',()=>{try{rec&&rec.abort();}catch(e){}selfRow.remove();done(false);}));
-  box.append(row,status,selfRow);
+  selfRow.append(el('span','small muted','Ja mikrofons nesadarbojas — pasaki skaļi un novērtē pati:'),btn('✓ Pateicu pareizi','primary',()=>done(true)),btn('✗ Vēl jātrenē','',()=>done(false)));
+  stage.append(mic,st);box.append(row,stage,heard,selfRow);
+  let tries=0,busy=false,cancelled=false,ended=false;
+  const done=(ok,note)=>{if(ended)return;ended=true;cancelled=true;row.remove();stage.remove();selfRow.remove();finish(ok,note);};
+  const setLvl=v=>mic.style.setProperty('--lvl',v.toFixed(2));
+  const fail=msg=>{st.innerHTML=msg;selfRow.style.display='';mic.classList.remove('on','busy');busy=false;};
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fail('Šajā pārlūkā mikrofons nav pieejams.');mic.disabled=true;return;}
+  if(!ASR)loadASR().catch(()=>{});// sāk lejupielādi jau tagad
+  async function attempt(){
+    if(busy||ended)return;busy=true;heard.style.display='none';
+    try{speechSynthesis.cancel();}catch(e){}
+    mic.classList.add('on');st.innerHTML='🎙️ Klausos… <b>runā tagad!</b>';
+    let rec;
+    try{rec=await recordUtterance(setLvl,s=>{if(s==='speaking')st.innerHTML='👂 Dzirdu… kad beigsi, pārbaudīšu pats';});}
+    catch(e){fail(e&&(e.name==='NotAllowedError'||e.name==='SecurityError')?'⚠️ Mikrofons nav atļauts. Adreses joslā spied 🔒 (vai aA) → Mikrofons → Atļaut, tad mēģini vēlreiz.':e&&e.name==='NotFoundError'?'⚠️ Mikrofons nav atrasts.':'⚠️ Neizdevās ieslēgt mikrofonu.');return;}
+    setLvl(0);mic.classList.remove('on');if(cancelled)return;
+    if(rec.reason==='nospeech'){st.innerHTML='Neko nedzirdēju 🤔 Spied 🎤 un runā skaļāk.';busy=false;return;}
+    mic.classList.add('busy');
+    if(!ASR){const upd=p=>{st.innerHTML=`⏬ Pirmo reizi ielādēju runas atpazīšanu… <b>${p}%</b><div class="bar"><i style="width:${p}%"></i></div><span class="small muted">(~75 MB, vēlāk vairs nebūs jāgaida)</span>`;};
+      upd(asrPct());asrListeners.push(upd);}
+    else st.innerHTML='🤔 Pārbaudu…';
+    let text='';
+    try{const asr=await loadASR();asrListeners=[];st.innerHTML='🤔 Pārbaudu…';
+      const out=await asr(rec.audio,{language:'french',task:'transcribe'});text=(out&&out.text||'').trim();}
+    catch(e){asrListeners=[];fail('⚠️ Runas atpazīšanu neizdevās ielādēt (vajag internetu).');return;}
+    mic.classList.remove('busy');busy=false;if(cancelled)return;
+    const j=spJudge(q,text);const pct=Math.round((j.score||0)*100);
+    heard.style.display='';
+    let words='';if(j.r){words=j.r.orig.map((w,i)=>`<span class="${j.r.ok.has(i)?'wok':'wbad'}">${esc(w)}</span>`).join(' ');}
+    heard.innerHTML=`Dzirdēju: «<b>${esc(text||'…')}</b>»`+(words?`<div class="sayw">${words}</div>`:'')+
+      `<div class="score"><div class="bar ${j.pass?'g':''}"><i style="width:${pct}%"></i></div><span>Izruna: <b>${pct}%</b></span></div>`;
+    if(j.pass){st.innerHTML='';done(true,pct>=95?'🌟 Lieliska izruna!':'');return;}
+    tries++;
+    if(tries>=3){done(false,`Dzirdēju: «${esc(text)}». Paklausies 🔊 un atkārto vēlreiz nākamajā raundā.`);return;}
+    st.innerHTML=`Gandrīz! ${j.r&&j.r.tw.length>1?'Sarkanos vārdus nesadzirdēju. ':''}Paklausies 🔊 un spied 🎤 vēlreiz (${3-tries} mēģin. palikuši).`;
+  }
+  mic.onclick=attempt;
 }
+
+/* --- izrunas treniņa vārdi --- */
+const READS=()=>[
+  ...SCHOOLIT.map(it=>{const n=np(it);return{t:`${UN(n)} ${frN(n)}`,lv:lvN(n),pic:picOf(n)};}),
+  ...ITEMS.filter(i=>i.c==='class').map(it=>{const n=np(it);return{t:`${LE(n)} ${frN(n)}`,lv:lvN(n),pic:picOf(n)};}),
+  ...COLORS.map(c=>({t:c.m,lv:c.lv,sw:c.h})),...COLORS.filter(c=>c.f!==c.m).map(c=>({t:c.f,lv:LVF2(c),sw:c.h})),
+  ...EMO.map(e=>({t:e.m,lv:e.lm,emo:e,g:'m'})),...EMO.filter(e=>e.f!==e.m).map(e=>({t:e.f,lv:e.lf,emo:e,g:'f'})),
+  ...['bonjour','merci','au revoir','la couleur','préférée','je suis','il est','elle est','ils sont','elles sont','c\'est','ce sont'].map(t=>({t,lv:''}))];
+const LVF2=c=>lvAdj(c.lv,'f');
+Object.assign(G,{
+ spRead(){const r=pick(READS());return{sk:'say',t:'say',read:1,kind:'Izlasi skaļi',pic:r.pic||(r.emo?emoPic(r.emo,r.g):''),sw:r.sw,q:`<span class="fr big">${r.t}</span>${r.lv?` <span class="muted small">(${r.lv})</span>`:''}`,sayQ:r.t,target:r.t,say:r.t,exp:`<b>${r.t}</b>${r.lv?' — '+r.lv:''}`};},
+ spReadS(){const r=pick(["C'est un crayon bleu.","C'est une gomme bleue.","Ce sont des sacs blancs.","Ce sont des règles blanches.","Mon sac est noir.","Mes stylos sont bleus.","C'est ma règle.","Mes livres sont blancs.","Elle est fatiguée.","Il est content.","Je m'appelle Léa.","Tu t'appelles Anna.","Nous nous appelons les Copains.","Vous vous appelez Marie.","Ils s'appellent Nan et Tibo.","De quelle couleur est le cahier ?","Quelle est ta couleur préférée ?","C'est un sac à dos gris.","Le tableau est vert.","La chaise est rouge."]);
+   return{sk:'say',t:'say',read:1,kind:'Izlasi teikumu skaļi',q:`<span class="fr">${r}</span>`,sayQ:r,target:r,say:r,exp:'Lasi lēnām un skaidri.'};}
+});
+MODES.sayw={name:'Izrunā vārdiņus',ico:'🗣️',sub:'Izlasi skaļi vārdus un frāzes — ar izrunas padomiem un procentiem',gens:['spRead','spRead','spRead','spReadS']};
+MODES.say.gens=['spWord','spWord','spColor','spSent','spPos','spEmo','spName','spFav','spRepeat'];
+MODES.mix.gens=Object.keys(G).filter(k=>!k.startsWith('sp'));
+{const mx=MODES.mix;delete MODES.mix;MODES.mix=mx;}
+LESSON.sayw=LESSON.say=`<ul><li>Spied lielo <b>🎤</b> vienreiz un runā. Kad apklusīsi, spēle <b>pati</b> apstāsies, pārbaudīs un parādīs rezultātu.</li>
+ <li>Pirmo reizi: pārlūks prasīs <b>atļaut mikrofonu</b>, un runas atpazīšana ielādēsies (~75 MB, tikai vienreiz). Ieraksts nekur netiek sūtīts — viss notiek tavā datorā.</li>
+ <li>Zaļie vārdi — sadzirdēti pareizi, sarkanie — vēl jātrenē. Izrunas % rāda, cik daudz sapratu.</li>
+ <li><b>Izrunas likumi:</b> pēdējo līdzskani parasti neizrunā (stylo, crayon, gris [grī]) · <b>-e</b> beigās neizrunā, bet tad iepriekšējais burts skan: vert [vēr] → verte [vert] · <b>ou</b> = u · <b>oi</b> = ua · <b>eau</b> = o · <b>ch</b> = š · <b>ai</b> = e · <b>c'est</b> = [se] · <b>u</b> = ü · <b>on, an, en, in</b> — caur degunu.</li></ul>`;
 
 /* --- špikeris --- */
 function viewCheat(back){
